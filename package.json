@@ -1,4 +1,14 @@
 {
-  "name": "application-name",
-  "version": "0.0.1"
+  "name": "node-modbus-rtu",
+  "version": "0.0.1",
+  "dependencies": {
+    "crc" : "3.3.0",
+    "buffers": "0.1.x",
+    "binary": "0.3.x",
+    "bufferput": "0.1.x",
+    "buffer-equal": "*",
+    "serialport": "*",
+    "lodash": "*",
+    "q": "*"
+  }
 }
