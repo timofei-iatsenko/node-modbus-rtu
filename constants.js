@@ -1,0 +1,14 @@
+module.exports = {
+    FUNCTION_CODES: {
+        READ_COILS: 1,
+        READ_DISCRETE_INPUTS: 2,
+        READ_HOLDING_REGISTERS: 3,
+        READ_INPUT_REGISTERS: 4,
+        WRITE_SINGLE_COIL: 5,
+        WRITE_SINGLE_REGISTER: 6,
+        WRITE_MULTIPLE_COILS: 15,
+        WRITE_MULTIPLE_REGISTERS: 16,
+    },
+   // DEBUG: true,
+    RESPONSE_TIMEOUT: 500
+}
