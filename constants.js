@@ -10,5 +10,7 @@ module.exports = {
         WRITE_MULTIPLE_REGISTERS: 16,
     },
    // DEBUG: true,
-    RESPONSE_TIMEOUT: 500
+    RESPONSE_TIMEOUT: 500,
+    QUEUE_TIMEOUT: 150,
+    END_PACKET_TIMEOUT: 15,
 }

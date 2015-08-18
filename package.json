@@ -1,6 +1,25 @@
 {
-  "name": "node-modbus-rtu",
+  "name": "modbus-rtu",
   "version": "0.0.1",
+  "description": "modbus-rtu implementation for node.js",
+  "keywords": [
+    "modbus-rtu",
+    "modbus",
+    "modbus master"
+  ],
+  "main": "index.js",
+  "homepage": "https://github.com/thekip/node-modbus-rtu",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:thekip/node-modbus-rtu.git"
+  },
+  "author": {
+    "name": "Tim Yatsenko",
+    "url": "https://github.com/thekip"
+  },
+  "bugs": {
+    "url": "ttps://github.com/thekip/node-modbus-rtu/issues"
+  },
   "dependencies": {
     "crc" : "3.3.0",
     "buffers": "0.1.x",

@@ -20,10 +20,9 @@ function SerialHelper(serialPort, onReady) {
             self.currentTask.deferred.resolve(buffer);
 
             self.buffers = [];
-        }, 15)
+        }, constants.END_PACKET_TIMEOUT)
 
         serialPort.on('data', function (data) {
-           // console.log('ondata', data);
             self.buffers.push(data)
             onData(data)
         });
@@ -52,7 +51,7 @@ SerialHelper.prototype.processQueue = function () {
     function continueQueue() {
         setTimeout(function(){
             self.processQueue();
-        }, 150) //pause between calls
+        }, constants.QUEUE_TIMEOUT) //pause between calls
     }
 
     if (this.queue.length) {
