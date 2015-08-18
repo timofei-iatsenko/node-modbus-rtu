@@ -1,6 +1,5 @@
 # node-modbus-rtu
-Pure NodeJS implementation of ModbusRTU protocol using node-serialport and promises
-
+Pure NodeJS implementation of ModbusRTU protocol using [node-serilport](https://github.com/voodootikigod/node-serialport) and promises
 
 ## Implementation notes
 This library implement ONLY *ModbusRTU Master* and only few most important features:
@@ -8,7 +7,25 @@ This library implement ONLY *ModbusRTU Master* and only few most important featu
  * **06** Write Single Register
  * **16** Write Multiple Registers
 
-Function for work with coils is not implemented. But you can fork and add this.
+Coil functions (readCoils, writeCoils) is not implemented yet. But you can fork and add this.
+Also Modbus response error doesn't checks (if your slave device response with error, you can't understand it), but crc is checked.
+
+## Installation
+The simpliest way, install via npm.
+Add to `packages.json` 2 dependencies **node-modbus-rtu** and **serialport**.
+Then run `npm i`
+
+```js
+  "dependencies": {
+    //...
+    "node-modbus-rtu" : "*",
+    "serialport" : "*",
+    //...
+   }
+```
+
+**NOTE!** [node-serilport](https://github.com/voodootikigod/node-serialport) doesn't support  node 0.11.11+. Check [documentation](https://github.com/voodootikigod/node-serialport) to more info
+
 
 ## Benefits
 The main goal of this library, this is native js implementation.
@@ -22,70 +39,70 @@ You don't need deal with timeouts or think about sequental writing to serialport
 
 ### The basic example
 ```js
-   var SerialPort = require('serialport').SerialPort;
-   var modbus = require('./modbus-rtu');
+var SerialPort = require('serialport').SerialPort;
+var modbus = require('./modbus-rtu');
 
-   //create serail port with params. Refer to node-serialport for documentation
-   var serialPort = new SerialPort("/dev/ttyUSB0", {
-       baudrate: 2400
-   });
+//create serail port with params. Refer to node-serialport for documentation
+var serialPort = new SerialPort("/dev/ttyUSB0", {
+   baudrate: 2400
+});
 
-   //create ModbusMaster instance and feed them serial port
-   new modbus.Master(serialPort, function (master) {
-          //Read from slave with address 1 four holding registers starting from 0.
-          master.readHoldingRegisters(1, 0, 4).then(function(data){
-            //promise will be fulfilled with parsed data
-            console.log(data); //output will be [10, 100, 110, 50] (numbers just for example)
-          }, function(err){
-            //or will be rejected with error
-            //for example timeout error or crc.
-          })
+//create ModbusMaster instance and feed them serial port
+new modbus.Master(serialPort, function (master) {
+      //Read from slave with address 1 four holding registers starting from 0.
+      master.readHoldingRegisters(1, 0, 4).then(function(data){
+        //promise will be fulfilled with parsed data
+        console.log(data); //output will be [10, 100, 110, 50] (numbers just for example)
+      }, function(err){
+        //or will be rejected with error
+        //for example timeout error or crc.
+      })
 
-          //Write to first slave into second register value 150.
-          //slave, register, value
-          master.writeSingleRegister(1, 2, 150).then(success, error);
-   })
+      //Write to first slave into second register value 150.
+      //slave, register, value
+      master.writeSingleRegister(1, 2, 150).then(success, error);
+})
 ```
 
 ### Polling data from slaves in loop.
 
 ```js
-   var SerialPort = require('serialport').SerialPort;
-   var modbus = require('./modbus-rtu');
-   var Q = require('q');
+var SerialPort = require('serialport').SerialPort;
+var modbus = require('./modbus-rtu');
+var Q = require('q');
 
-   //create serail port with params. Refer to node-serialport for documentation
-   var serialPort = new SerialPort("/dev/ttyUSB0", {
-       baudrate: 2400
-   });
+//create serail port with params. Refer to node-serialport for documentation
+var serialPort = new SerialPort("/dev/ttyUSB0", {
+   baudrate: 2400
+});
 
-   new modbus.Master(serialPort, function (master) {
-       var promises = [];
+new modbus.Master(serialPort, function (master) {
+   var promises = [];
 
-       (function loop (){
-          //Read from slave 1
-          promises.push(master.readHoldingRegisters(1, 0, 4).then(function(data){
-            console.log('slave 1', data);
-          }))
+   (function loop (){
+      //Read from slave 1
+      promises.push(master.readHoldingRegisters(1, 0, 4).then(function(data){
+        console.log('slave 1', data);
+      }))
 
-          //Read from slave 2
-          promises.push(master.readHoldingRegisters(2, 0, 4).then(function(data){
-             console.log('slave 2', data);
-          }))
+      //Read from slave 2
+      promises.push(master.readHoldingRegisters(2, 0, 4).then(function(data){
+         console.log('slave 2', data);
+      }))
 
-          //Read from slave 3
-           promises.push(master.readHoldingRegisters(2, 0, 4).then(function(data){
-              console.log('slave 2', data);
-           }))
+      //Read from slave 3
+       promises.push(master.readHoldingRegisters(2, 0, 4).then(function(data){
+          console.log('slave 2', data);
+       }))
 
-          Q.all(promises).catch(function(err){
-            console.log(err); //catch all errors
-          }).finally(function(){
-            //when all promises fullfiled or rejected, restart loop with timeout
-            setTimeout(loop, 300);
-          })
-       })()
-   })
+      Q.all(promises).catch(function(err){
+        console.log(err); //catch all errors
+      }).finally(function(){
+        //when all promises fullfiled or rejected, restart loop with timeout
+        setTimeout(loop, 300);
+      })
+   })()
+})
 ```
 This approach is very similar to arduino or PLC programming approach, but it extremely uncomfortable in JS,
 because if you need do something after response is received you need to do it in a promise callback, and very quickly it became into callback hell.
@@ -93,7 +110,7 @@ So i suggest another approach. Apply IoC pattern to our code and write some clas
 
 ### Use in real project: creating objects for slaves
 For example we have a modbus thermostat, and we need set do something when data from thermostat is changed.
-Create class for this thermostat (i suggest extract it another file):
+Create class for this thermostat (i suggest extract it to another file):
 
 ```js
 var _ = require('lodash'); //npm i lodash
@@ -134,7 +151,8 @@ MicroEvent.mixin(Thermostat);
 _.extend(Thermostat.prototype, {
     update: function () {
         var th = this;
-        return this.modbusMaster.readHoldingRegisters(this.modbusAddr, 0, 6).then(function (data) {
+        return this.modbusMaster.readHoldingRegisters(this.modbusAddr, 0, 6)
+        .then(function (data) {
             th._rawData = data;
 
             th.enabled = data[ENABLED_REGISTER] != 90;
@@ -175,12 +193,11 @@ This simple class blackboxing all modbus communication inside and provide to us 
 
 ```js
 new modbus.Master(serialPort, function (modbus) {
-        var t = new Thermostat(modbus, slave);
-        t.bind('change', function(){
-            console.log('Thermostat '+ i +'. '+ t.toString());
-            onThermostatUpdate();
-        });
-
+    var t = new Thermostat(modbus, slave);
+    t.bind('change', function(){
+        console.log('Thermostat '+ i +'. '+ t.toString());
+        onThermostatUpdate();
+    });
 })
 ```
 
@@ -221,13 +238,13 @@ Constructor of modbus class.
 
 Example:
 ```js
-     var serialPort = new SerialPort("/dev/ttyUSB0", {
-           baudrate: 2400
-       });
+var serialPort = new SerialPort("/dev/ttyUSB0", {
+   baudrate: 2400
+});
 
-       new modbus.Master(serialPort, function (master) {
-        //call master function here
-       })
+new modbus.Master(serialPort, function (master) {
+    //call master function here
+})
 ```
 
 #### master.readHoldingRegisters(slave, start, length) -> promise
@@ -241,15 +258,15 @@ Modbus function read holding registers
 
 Example:
 ```js
-   new modbus.Master(serialPort, function (master) {
-      master.readHoldingRegisters(1, 0, 4).then(function(data){
+new modbus.Master(serialPort, function (master) {
+    master.readHoldingRegisters(1, 0, 4).then(function(data){
         //promise will be fulfilled with parsed data
         console.log(data); //output will be [10, 100, 110, 50] (numbers just for example)
-      }, function(err){
+    }, function(err){
         //or will be rejected with error
         //for example timeout error or crc.
-      })
-   })
+    })
+})
 ```
 
 #### master.writeSingleRegister(slave, register, value) -> promise
@@ -263,9 +280,9 @@ Modbus function write single register
 
 Example:
 ```js
-   new modbus.Master(serialPort, function (master) {
-      master.writeSingleRegister(1, 2, 150);
-   }
+new modbus.Master(serialPort, function (master) {
+  master.writeSingleRegister(1, 2, 150);
+}
 ```
 
 #### master.writeMultipleRegisters(slave, start, array) -> promise
@@ -280,6 +297,7 @@ You can set starting register and array with data. Register from start to `array
 
 Example:
 ```js
-   new modbus.Master(serialPort, function (master) {
-      master.writeMultipleRegisters(1, 2, [150, 100, 20]);
-   }
+new modbus.Master(serialPort, function (master) {
+  master.writeMultipleRegisters(1, 2, [150, 100, 20]);
+}
+```
