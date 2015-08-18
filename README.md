@@ -4,9 +4,9 @@ Pure NodeJS implementation of ModbusRTU protocol using node-serialport and promi
 
 ## Implementation notes
 This library implement ONLY *ModbusRTU Master* and only few most important features:
- * 03 Read Holding Registers
- * 06 Write Single Register
- * 16 Write Multiple Registers
+ * **03** Read Holding Registers
+ * **06** Write Single Register
+ * **16** Write Multiple Registers
 
 Function for work with coils is not implemented. But you can fork and add this.
 
@@ -22,8 +22,8 @@ You don't need deal with timeouts or think about sequental writing to serialport
 
 ### The basic example
 ```js
-    var SerialPort = require('serialport').SerialPort;
-    var modbus = require('./modbus-rtu');
+   var SerialPort = require('serialport').SerialPort;
+   var modbus = require('./modbus-rtu');
 
    //create serail port with params. Refer to node-serialport for documentation
    var serialPort = new SerialPort("/dev/ttyUSB0", {
@@ -50,9 +50,9 @@ You don't need deal with timeouts or think about sequental writing to serialport
 ### Polling data from slaves in loop.
 
 ```js
-    var SerialPort = require('serialport').SerialPort;
-    var modbus = require('./modbus-rtu');
-    var Q = require('q');
+   var SerialPort = require('serialport').SerialPort;
+   var modbus = require('./modbus-rtu');
+   var Q = require('q');
 
    //create serail port with params. Refer to node-serialport for documentation
    var serialPort = new SerialPort("/dev/ttyUSB0", {
@@ -60,10 +60,9 @@ You don't need deal with timeouts or think about sequental writing to serialport
    });
 
    new modbus.Master(serialPort, function (master) {
+       var promises = [];
 
-   var promises = [];
-
-    (function loop (){
+       (function loop (){
           //Read from slave 1
           promises.push(master.readHoldingRegisters(1, 0, 4).then(function(data){
             console.log('slave 1', data);
@@ -85,12 +84,11 @@ You don't need deal with timeouts or think about sequental writing to serialport
             //when all promises fullfiled or rejected, restart loop with timeout
             setTimeout(loop, 300);
           })
-    })()
-
+       })()
    })
 ```
-This approach is very similar to arduino or PLC programming aproach, but it extremly uncomfortable in JS,
-because if you need do something after response is recieved you need to do it in a promise callback, and very quickly it became into callback hell.
+This approach is very similar to arduino or PLC programming approach, but it extremely uncomfortable in JS,
+because if you need do something after response is received you need to do it in a promise callback, and very quickly it became into callback hell.
 So i suggest another approach. Apply IoC pattern to our code and write some classes for our slaves:
 
 ### Use in real project: creating objects for slaves
@@ -218,8 +216,8 @@ TODO: review this section and add info about tuning timeouts
 
 Constructor of modbus class.
 
-*serialPort - instance of serialPort object
-*onReady - onReady callback. Modbus Master object will be passed as first parameter
+* **serialPort** - instance of serialPort object
+* **onReady** - onReady callback. Modbus Master object will be passed as first parameter
 
 Example:
 ```js
@@ -235,11 +233,11 @@ Example:
 #### master.readHoldingRegisters(slave, start, length) -> promise
 Modbus function read holding registers
 
-*slave - slave address (1..247)
-*start - start register for reading
-*length - how many registers to read
+* **slave** - slave address (1..247)
+* **start** - start register for reading
+* **length** - how many registers to read
 
-Returns promise which will be fullfilled with array of data
+**Returns promise** which will be fullfilled with array of data
 
 Example:
 ```js
@@ -257,11 +255,11 @@ Example:
 #### master.writeSingleRegister(slave, register, value) -> promise
 Modbus function write single register
 
-*slave - slave address (1..247)
-*register - register number for write
-*value - int value
+* **slave** - slave address (1..247)
+* **register** - register number for write
+* **value** - int value
 
-Returns promise
+**Returns promise**
 
 Example:
 ```js
@@ -274,11 +272,11 @@ Example:
 Modbus function write multiple registers.
 You can set starting register and array with data. Register from start to `array.length` will be filled with array data
 
-*slave - slave address (1..247)
-*start - starting register number for write
-*array - array of values
+* **slave** - slave address (1..247)
+* **start** - starting register number for write
+* **array** - array of values
 
-Returns promise
+**Returns promise**
 
 Example:
 ```js
