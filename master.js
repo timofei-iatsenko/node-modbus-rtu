@@ -1,6 +1,6 @@
 var crc = require('crc');
 var BufferPut = require('bufferput');
-var Q = require('q');
+var Promise = require("bluebird");
 var SerialHelper = require('./serial-helper');
 var constants = require('./constants');
 var binary = require('binary');
@@ -12,8 +12,12 @@ module.exports = Master;
 
 function Master(serialPort, onReady) {
     var self = this;
+    serialPort.on('error', function(err){
+        console.error(err);
+    });
     this.serial = new SerialHelper(serialPort, function(){
-        onReady(self);
+        if (onReady)
+            onReady(self);
     });
 }
 
@@ -38,21 +42,54 @@ Master.prototype.readHoldingRegisters = function (slave, start, length) {
                         results.push(val.value.readInt16BE(i));
                     }
                 });
-            })
+            });
 
             return results;
         });
-}
+};
 
-Master.prototype.writeSingleRegister = function (slave, register, value) {
+/**
+ *
+ * @param slave
+ * @param register
+ * @param value
+ * @param retryCount
+ */
+Master.prototype.writeSingleRegister = function (slave, register, value, retryCount) {
     var packet = this.createFixedPacket(slave, constants.FUNCTION_CODES.WRITE_SINGLE_REGISTER, register, value);
-    return this.request(packet);
-}
+    var self = this;
+    retryCount = retryCount ? retryCount : constants.DEFAULT_RETRY_COUNT;
+
+    var performRequest = function (retry) {
+        return new Promise(function (resolve) {
+            var funcName = 'writeSingleRegister: ';
+            var funcId  = ' Slave '+slave+'; ' +
+                'Register: '+register+'; Value: '+value+';  Retry ' + (retryCount + 1 - retry) + ' of ' + retryCount;
+
+            if (retry <= 0) {
+                throw new Error('Retry limit exceed (retry count  '+retryCount+') ' + funcId);
+            }
+
+            constants.DEBUG &&
+            console.log(funcName + 'perform request.' + funcId);
+
+            self.request(packet)
+                .catch(function (err) {
+                    constants.DEBUG &&  console.log(funcName + err  + funcId);
+
+                    return performRequest(--retry);
+                }).then(function (data) {
+                    resolve(data);
+                });
+        });
+    };
+    return performRequest(retryCount);
+};
 
 Master.prototype.writeMultipleRegisters = function(slave, start, array){
     var packet = this.createVariousPacket(slave, constants.FUNCTION_CODES.WRITE_MULTIPLE_REGISTERS, start, array);
     return this.request(packet);
-}
+};
 
 /**
  * Create modbus packet with fixed length
@@ -69,7 +106,7 @@ Master.prototype.createFixedPacket = function(slave, func, param, param2){
         .word16be(param)
         .word16be(param2)
         .buffer();
-}
+};
 
 /**
  * Create modbus packet with various length
@@ -88,10 +125,10 @@ Master.prototype.createVariousPacket = function(slave, func, start, array){
 
     _.forEach(array, function(value){
         buf.word16be(value);
-    })
+    });
 
     return buf.buffer();
-}
+};
 
 Master.prototype.request = function request(buffer) {
     var self = this;
@@ -102,14 +139,14 @@ Master.prototype.request = function request(buffer) {
                 throw new errors.crc;
             return response;
         })
-}
+};
 
 Master.prototype.addCrc = function (buffer) {
     return (new BufferPut())
         .put(buffer)
         .word16le(crc.crc16modbus(buffer))
         .buffer();
-}
+};
 
 Master.prototype.validateRequest = function (buffer, slave, func) {
     var vars = binary.parse(buffer)
@@ -118,7 +155,7 @@ Master.prototype.validateRequest = function (buffer, slave, func) {
         .vars;
 
     return vars.slave == slave && vars.func == func;
-}
+};
 
 Master.prototype.checkCrc = function (buffer){
     var pdu = buffer.slice(0, buffer.length-2);

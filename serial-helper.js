@@ -1,4 +1,4 @@
-var Q = require('q');
+var Promise = require("bluebird");
 var _ = require('lodash');
 var constants = require('./constants');
 
@@ -14,25 +14,25 @@ function SerialHelper(serialPort, onReady) {
     this.currentTask = null;
 
     this.serialPort.on("open", function () {
-        var onData = _.debounce(function () {
-            var buffer = Buffer.concat(self.buffers);
-            constants.DEBUG && console.log('resp', buffer);
-            self.currentTask.deferred.resolve(buffer);
-
-            self.buffers = [];
-        }, constants.END_PACKET_TIMEOUT)
-
-        serialPort.on('data', function (data) {
-            self.buffers.push(data)
-            onData(data)
-        });
-
         self.processQueue();
-
         if (onReady)
             onReady();
+    });
 
-    })
+    var onData = _.debounce(function () {
+        var buffer = Buffer.concat(self.buffers);
+        constants.DEBUG && console.log('resp', buffer);
+        self.currentTask.deferred.resolve(buffer);
+
+        self.buffers = [];
+    }, constants.END_PACKET_TIMEOUT);
+
+    serialPort.on('data', function (data) {
+        if (self.currentTask) {
+            self.buffers.push(data);
+            onData(data);
+        }
+    });
 }
 
 SerialHelper.prototype._write = function(buffer, deferred) {
@@ -43,7 +43,7 @@ SerialHelper.prototype._write = function(buffer, deferred) {
     });
 
     return deferred.promise.timeout(constants.RESPONSE_TIMEOUT, 'Response timeout exceed!');
-}
+};
 
 SerialHelper.prototype.processQueue = function () {
     var self = this;
@@ -68,10 +68,16 @@ SerialHelper.prototype.processQueue = function () {
     } else {
         continueQueue();
     }
-}
+};
 
 SerialHelper.prototype.write = function (buffer) {
-    var deferred = Q.defer();
+    var deferred = {};
+
+    deferred.promise = new Promise(function (resolve, reject) {
+        deferred.resolve = resolve;
+        deferred.reject = reject;
+    });
+
 
     this.queue.push({
         deferred: deferred,
@@ -79,5 +85,5 @@ SerialHelper.prototype.write = function (buffer) {
     })
 
     return deferred.promise;
-}
+};
 

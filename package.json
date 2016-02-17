@@ -1,6 +1,6 @@
 {
   "name": "modbus-rtu",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "modbus-rtu implementation for node.js",
   "keywords": [
     "modbus-rtu",
