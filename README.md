@@ -33,7 +33,7 @@ It means that using this library you can write to modbus without waiting a respo
 That make you code much cleaner and decoupled. See examples below.
 
 2. **Promises** Promises is a great pattern for the last time. Promises make async code more clean and readable.
-This library using promises. All communication functions return promises, so you can easily process data or catch exceptions.
+All communication functions return promises, so you can easily process data or catch exceptions.
 
 ## Examples
 
@@ -103,7 +103,7 @@ master.readHoldingRegisters(4, 0, 4).then(function(data){
 })
 ```
 
-This makes possible to write code in synchronous style. And perform few request concurrently.
+This makes possible to write code in synchronous style.
 
 Check more examples in `/examples` folder in repository.
 
@@ -133,7 +133,7 @@ If you set **too small timeout** worker will incorrect collect buffers and you w
 If you set **too big timeout** communication will be very slow.
 
 
-#### How to set timeouts
+## How to set timeouts
 All constants stored in `modbus-rtu/constants.js`. You can require this file and override default values:
 
 ```js
@@ -213,3 +213,8 @@ new modbus.Master(serialPort, function (master) {
   master.writeMultipleRegisters(1, 2, [150, 100, 20]);
 }
 ```
+
+### Roadmap
+1. Refactoring. Extract queue to separate entity. Replace console.log() to powerfull logger.
+2. Write test
+3. Add rest modbus functions
