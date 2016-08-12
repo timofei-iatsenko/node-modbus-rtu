@@ -21,13 +21,14 @@
     "url": "ttps://github.com/thekip/node-modbus-rtu/issues"
   },
   "dependencies": {
-    "crc" : "3.3.0",
-    "buffers": "0.1.x",
     "binary": "0.3.x",
-    "bufferput": "0.1.x",
+    "bluebird": "^3.4.1",
     "buffer-equal": "*",
-    "serialport": "*",
+    "bufferput": "0.1.x",
+    "buffers": "0.1.x",
+    "crc": "3.3.0",
     "lodash": "*",
-    "q": "*"
+    "q": "*",
+    "serialport": "*"
   }
 }
