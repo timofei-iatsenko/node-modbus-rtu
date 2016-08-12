@@ -67,7 +67,8 @@ Master.prototype.writeSingleRegister = function (slave, register, value, retryCo
                 'Register: '+register+'; Value: '+value+';  Retry ' + (retryCount + 1 - retry) + ' of ' + retryCount;
 
             if (retry <= 0) {
-                throw new Error('Retry limit exceed (retry count  '+retryCount+') ' + funcId);
+                // throw new Error('Retry limit exceed (retry count  '+retryCount+') ' + funcId);
+                console.log('retry limit exceed');
             }
 
             constants.DEBUG &&
