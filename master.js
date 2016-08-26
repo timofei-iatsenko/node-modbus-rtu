@@ -39,7 +39,7 @@ Master.prototype.readHoldingRegisters = function (slave, start, length) {
             data.word8('byteCount').tap(function (val) {
                 this.buffer('value', val.byteCount).tap(function () {
                     for (var i = 0; i < val.byteCount; i += 2) {
-                        results.push(val.value.readInt16BE(i));
+                        results.push(val.value.readUInt16BE(i));
                     }
                 });
             });
