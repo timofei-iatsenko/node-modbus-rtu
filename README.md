@@ -11,20 +11,9 @@ This library implement ONLY **ModbusRTU Master** and only most important feature
 Coil functions (readCoils, writeCoils) is not implemented yet. But you can fork and add this.
 
 ## Installation
-The simplest way, install via npm.
+The simplest way, install via npm, type to console:
 
-Add to `packages.json` 2 dependencies:
-
-```js
-  "dependencies": {
-    //...
-    "modbus-rtu" : "*",
-    "serialport" : "*",
-    //...
-   }
-```
-
-Then run `npm i`.
+`npm i modbus-rtu serialport --save`
 
 ## Benefits
 1. **Queue**. Thst is a killer-feature of this library. Behind the scene it use a simple queue.
@@ -142,13 +131,57 @@ constants.END_PACKET_TIMEOUT = 15;
 constants.RESPONSE_TIMEOUT = 500;
 ```
 
+**or**
+
+Pass options directly to Modbus constructor: 
+
+```js
+new modbus.Master(serialPort, {
+   endPacketTimeout: 50,
+   queueTimeout: 50,
+   responseTimeout: 150
+})
+```
+
+## How to get raw buffer
+One Modbus holding register can store only 2-bytes data types. But sometimes
+
+Registers could be combined together to form any of these 32-bit data types:
+* A 32-bit unsigned integer (a number between 0 and 4,294,967,295)
+* A 32-bit signed integer (a number between -2,147,483,648 and 2,147,483,647)
+* A 32-bit single precision IEEE floating point number.
+* A four character ASCII string (4 typed letters)
+
+More registers can be combined to form longer ASCII strings.  
+Each register being used to store two ASCII characters (two bytes).
+
+To parse this combined data types, you can get raw buffer in callback 
+and make anything you want with that.
+
+```js
+master.readHoldingRegisters(1, 0, 2, function(rawBuffer) {
+    //buffer here contains only data without pdu header and crc
+    return rawBuffer.readUInt32BE(0);
+}).then(function(bigNumber){
+    //promise will be fullfilled with result of callback
+    console.log(bigNumber); //2923517522
+})
+```
+
 ### API Documentation
 
-#### new modbus.Master(serialPort)
+#### new modbus.Master(serialPort, [options])
 
 Constructor of modbus class.
 
 * **serialPort** - instance of serialPort object
+* **options** - object with Modbus options
+
+**List of options:**
+* `endPacketTimeout`: default `constants.END_PACKET_TIMEOUT`
+* `queueTimeout`: default `constants.QUEUE_TIMEOUT`
+* `responseTimeout`: default `constants.RESPONSE_TIMEOUT`
+* `debug`: default `false`; enable logging to console. 
 
 Example:
 ```js
@@ -157,12 +190,19 @@ new modbus.Master(new SerialPort("/dev/ttyUSB0", {
 }))
 ```
 
-#### master.readHoldingRegisters(slave, start, length) -> Promise
-Modbus function read holding registers
+#### master.readHoldingRegisters(slave, start, length, [dataType]) -> Promise<number[]>
+Modbus function read holding registers.
+
+The Modbus specification doesn't define exactly what data type is stored in the holding register.
+By default this function treat bytes as **signed integer**.
+
+If you want to change default data type, you should pass preferred type as last parameter.  
 
 * **slave** - slave address (1..247)
 * **start** - start register for reading
 * **length** - how many registers to read
+* **dataType** - dataType or function. If function is provided, this will be used for parsing raw buffer.
+dataType is one of `Modbus.DATA_TYPES`
 
 **Returns promise** which will be fulfilled with array of data
 
@@ -172,12 +212,31 @@ var master = new modbus.Master(serialPort);
 
 master.readHoldingRegisters(1, 0, 4).then(function(data){
     //promise will be fulfilled with parsed data
-    console.log(data); //output will be [10, 100, 110, 50] (numbers just for example)
+    console.log(data); //output will be [-10, 100, 110, 50] (numbers just for example)
 }, function(err){
     //or will be rejected with error
     //for example timeout error or crc.
 })
+
+master.readHoldingRegisters(1, 0, 4, modbus.Master.DATA_TYPES.UINT).then(function(data){
+    // data will be treat as unsigned integer
+    console.log(data); //output will be [20, 100, 110, 50] (numbers just for example)
+})
+
+master.readHoldingRegisters(1, 0, 2, function(rawBuffer) {
+    //buffer here contains only data without pdu header and crc
+    return rawBuffer.readUInt32BE(0);
+}).then(function(bigNumber){
+    //promise will be fullfilled with result of callback
+    console.log(bigNumber); //2923517522
+})
 ```
+
+**Allowed Data Types**
+
+* `DATA_TYPES.UINT` A 16-bit unsigned integer (a whole number between 0 and 65535)
+* `DATA_TYPES.INT` A 16-bit signed integer (a whole number between -32768 and 32767)
+* `DATA_TYPES.ASCII` A two character ASCII string (2 typed letters)
 
 #### master.writeSingleRegister(slave, register, value, retryCount=10) -> promise
 Modbus function write single register.
@@ -211,8 +270,17 @@ Example:
 ```js
 new modbus.Master(serialPort, function (master) {
   master.writeMultipleRegisters(1, 2, [150, 100, 20]);
-}
+})
 ```
+
+###Testing
+To run test, type to console:
+
+`npm test`
+
+Or run manually entire test (by executing test file via node).
+
+Please feel free to create PR with you tests.
 
 ### Roadmap
 1. Refactoring. Extract queue to separate entity. Replace console.log() to powerfull logger.

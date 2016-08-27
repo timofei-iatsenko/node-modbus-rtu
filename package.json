@@ -1,6 +1,9 @@
 {
   "name": "modbus-rtu",
-  "version": "0.0.2",
+  "version": "0.1.0",
+  "scripts": {
+    "test": "cross-env NODE_ENV=test tape tests/**/*.spec.js | tap-spec"
+  },
   "description": "modbus-rtu implementation for node.js",
   "keywords": [
     "modbus-rtu",
@@ -20,14 +23,20 @@
   "bugs": {
     "url": "ttps://github.com/thekip/node-modbus-rtu/issues"
   },
+  "engines": {
+    "node": ">=0.11.13"
+  },
   "dependencies": {
-    "crc" : "3.3.0",
-    "buffers": "0.1.x",
-    "binary": "0.3.x",
+    "crc": "3.3.0",
     "bufferput": "0.1.x",
-    "buffer-equal": "*",
-    "serialport": "*",
-    "lodash": "*",
-    "q": "*"
+    "serialport": "^2.0.6",
+    "lodash": "^4.3.0",
+    "bluebird": "^3.3.0"
+  },
+  "devDependencies": {
+    "cross-env": "^2.0.0",
+    "sinon": "^1.17.5",
+    "tap-spec": "^4.1.1",
+    "tape": "^4.6.0"
   }
 }

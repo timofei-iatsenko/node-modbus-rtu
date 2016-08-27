@@ -3,57 +3,55 @@ var BufferPut = require('bufferput');
 var Promise = require("bluebird");
 var SerialHelper = require('./serial-helper');
 var constants = require('./constants');
-var binary = require('binary');
-var bufferEqual = require('buffer-equal');
 var _ = require('lodash');
 var errors = require('./errors');
+var packetUtils = require('./packet-utils');
 
 module.exports = Master;
+module.exports.DATA_TYPES = packetUtils.DATA_TYPES;
 
-function Master(serialPort, onReady) {
-    var self = this;
-    serialPort.on('error', function(err){
+function Master(serialPort, options) {
+    serialPort.on('error', function(err) {
         console.error(err);
     });
-    this.serial = new SerialHelper(serialPort, function(){
-        if (onReady)
-            onReady(self);
+
+    this._options =  _.defaults(options || {}, {
+      responseTimeout: constants.RESPONSE_TIMEOUT,
+      queueTimeout: constants.QUEUE_TIMEOUT,
+      endPacketTimeout: constants.END_PACKET_TIMEOUT,
     });
+
+    this.serial = new SerialHelper(serialPort, this._options);
 }
 
 /**
  * Modbus function read holding registers
- * @param slave
- * @param start
- * @param length
- * @returns {promise}
+ * @param {number} slave
+ * @param {number} start
+ * @param {number} length
+ * @param {number | function?} dataType value from DATA_TYPES const or callback
+ * @returns {Promise<number[]>}
  */
-Master.prototype.readHoldingRegisters = function (slave, start, length) {
+Master.prototype.readHoldingRegisters = function(slave, start, length, dataType) {
     var packet = this.createFixedPacket(slave, constants.FUNCTION_CODES.READ_HOLDING_REGISTERS, start, length);
 
-    return this.request(packet)
-        .then(function (buffer) {
-            var data = binary.parse(buffer.slice(2, buffer.length - 2)); //slice header and crc
-            var results = [];
+    return this.request(packet).then(function(buffer) {
+        var buf = packetUtils.getDataBuffer(buffer);
 
-            data.word8('byteCount').tap(function (val) {
-                this.buffer('value', val.byteCount).tap(function () {
-                    for (var i = 0; i < val.byteCount; i += 2) {
-                        results.push(val.value.readInt16BE(i));
-                    }
-                });
-            });
+        if (_.isFunction(dataType)) {
+            return dataType(buf);
+        }
 
-            return results;
-        });
+        return packetUtils.parseFc03Packet(buf, dataType);
+    });
 };
 
 /**
  *
- * @param slave
- * @param register
- * @param value
- * @param retryCount
+ * @param {number} slave
+ * @param {number} register
+ * @param {number} value
+ * @param {number} retryCount
  */
 Master.prototype.writeSingleRegister = function (slave, register, value, retryCount) {
     var packet = this.createFixedPacket(slave, constants.FUNCTION_CODES.WRITE_SINGLE_REGISTER, register, value);
@@ -70,12 +68,12 @@ Master.prototype.writeSingleRegister = function (slave, register, value, retryCo
                 throw new Error('Retry limit exceed (retry count  '+retryCount+') ' + funcId);
             }
 
-            constants.DEBUG &&
+            self._options.debug &&
             console.log(funcName + 'perform request.' + funcId);
 
             self.request(packet)
                 .catch(function (err) {
-                    constants.DEBUG &&  console.log(funcName + err  + funcId);
+                    self._options.debug && console.log(funcName + err  + funcId);
 
                     return performRequest(--retry);
                 }).then(function (data) {
@@ -86,6 +84,12 @@ Master.prototype.writeSingleRegister = function (slave, register, value, retryCo
     return performRequest(retryCount);
 };
 
+/**
+ *
+ * @param {number} slave
+ * @param {number} start
+ * @param {number[]} array
+ */
 Master.prototype.writeMultipleRegisters = function(slave, start, array){
     var packet = this.createVariousPacket(slave, constants.FUNCTION_CODES.WRITE_MULTIPLE_REGISTERS, start, array);
     return this.request(packet);
@@ -97,6 +101,7 @@ Master.prototype.writeMultipleRegisters = function(slave, start, array){
  * @param func
  * @param param
  * @param param2
+ * @private
  * @returns {*}
  */
 Master.prototype.createFixedPacket = function(slave, func, param, param2){
@@ -114,6 +119,7 @@ Master.prototype.createFixedPacket = function(slave, func, param, param2){
  * @param func
  * @param start
  * @param array
+ * @private
  */
 Master.prototype.createVariousPacket = function(slave, func, start, array){
     var buf = (new BufferPut())
@@ -130,35 +136,19 @@ Master.prototype.createVariousPacket = function(slave, func, start, array){
     return buf.buffer();
 };
 
+/**
+ * @private
+ * @param {Buffer} buffer
+ * @returns {Promise<Buffer>}
+ */
 Master.prototype.request = function request(buffer) {
     var self = this;
 
-    return this.serial.write(this.addCrc(buffer))
+    return this.serial.write(packetUtils.addCrc(buffer))
         .then(function (response) {
-            if (!self.checkCrc(response))
+            if (!packetUtils.checkCrc(response))
                 throw new errors.crc;
             return response;
         })
-};
-
-Master.prototype.addCrc = function (buffer) {
-    return (new BufferPut())
-        .put(buffer)
-        .word16le(crc.crc16modbus(buffer))
-        .buffer();
-};
-
-Master.prototype.validateRequest = function (buffer, slave, func) {
-    var vars = binary.parse(buffer)
-        .word8be('slave')
-        .word8be('func')
-        .vars;
-
-    return vars.slave == slave && vars.func == func;
-};
-
-Master.prototype.checkCrc = function (buffer){
-    var pdu = buffer.slice(0, buffer.length-2);
-    return bufferEqual(buffer, this.addCrc(pdu));
 };
 

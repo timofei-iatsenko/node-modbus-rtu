@@ -1,31 +1,28 @@
 var Promise = require("bluebird");
 var _ = require('lodash');
-var constants = require('./constants');
 
 module.exports = SerialHelper;
 
-function SerialHelper(serialPort, onReady) {
+function SerialHelper(serialPort, options) {
     var self = this;
 
     this.queue = [];
-
+    this._options = options;
     this.serialPort = serialPort;
     this.buffers = [];
     this.currentTask = null;
 
     this.serialPort.on("open", function () {
         self.processQueue();
-        if (onReady)
-            onReady();
     });
 
     var onData = _.debounce(function () {
         var buffer = Buffer.concat(self.buffers);
-        constants.DEBUG && console.log('resp', buffer);
+        self._options.debug && console.log('resp', buffer);
         self.currentTask.deferred.resolve(buffer);
 
         self.buffers = [];
-    }, constants.END_PACKET_TIMEOUT);
+    }, options.endPacketTimeout);
 
     serialPort.on('data', function (data) {
         if (self.currentTask) {
@@ -36,13 +33,13 @@ function SerialHelper(serialPort, onReady) {
 }
 
 SerialHelper.prototype._write = function(buffer, deferred) {
-    constants.DEBUG && console.log('write', buffer);
+  this._options.debug && console.log('write', buffer);
     this.serialPort.write(buffer, function (error) {
         if (error)
             deferred.reject(error);
     });
 
-    return deferred.promise.timeout(constants.RESPONSE_TIMEOUT, 'Response timeout exceed!');
+    return deferred.promise.timeout(this._options.responseTimeout, 'Response timeout exceed!');
 };
 
 SerialHelper.prototype.processQueue = function () {
@@ -51,7 +48,7 @@ SerialHelper.prototype.processQueue = function () {
     function continueQueue() {
         setTimeout(function(){
             self.processQueue();
-        }, constants.QUEUE_TIMEOUT) //pause between calls
+        }, self._options.queueTimeout);  //pause between calls
     }
 
     if (this.queue.length) {
@@ -78,11 +75,21 @@ SerialHelper.prototype.write = function (buffer) {
         deferred.reject = reject;
     });
 
+    var task = {
+      deferred: deferred,
+      buffer: buffer
+    };
 
-    this.queue.push({
-        deferred: deferred,
-        buffer: buffer
-    })
+    this.queue.push(task);
+
+    deferred.promise.abort = function() {
+      var _self = this;
+
+      if (deferred.promise.isPending()) {
+        deferred.reject();
+        _.pull(_self.queue, task);
+      }
+    };
 
     return deferred.promise;
 };
