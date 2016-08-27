@@ -1,4 +1,3 @@
-var binary = require('binary');
 var crc = require('crc');
 
 const DATA_TYPES = {
