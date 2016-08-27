@@ -1,4 +1,5 @@
 var crc = require('crc');
+var BufferPut = require('bufferput');
 
 const DATA_TYPES = {
     INT: 1,
@@ -39,9 +40,10 @@ module.exports = {
      * @returns {Buffer}
      */
     addCrc: function(buf) {
-        var buffer = new Buffer(buf);
-        buffer.writeUInt16LE(crc.crc16modbus(buffer), buf.length - 2);
-        return buffer;
+        return (new BufferPut())
+            .put(buf)
+            .word16le(crc.crc16modbus(buf))
+            .buffer();
     },
 
     /**

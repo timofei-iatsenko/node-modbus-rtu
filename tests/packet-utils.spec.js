@@ -45,6 +45,7 @@ test('Calculate and add CRC to packet', (t) => {
     var signedBuffer = packetUtils.addCrc(buf);
     var actualCrc = signedBuffer.readUInt16LE(signedBuffer.length - 2);
 
+    t.equal(signedBuffer.length, buf.length + 2, 'CRC should be added to the end of buffer');
     t.equal(actualCrc, 44361, 'Added crc is valid');
 
     t.end();
