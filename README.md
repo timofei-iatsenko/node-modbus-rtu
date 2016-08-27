@@ -144,7 +144,7 @@ new modbus.Master(serialPort, {
 ```
 
 ## How to get raw buffer
-One Modbus holding register can store only 2-bytes data types. But sometimes
+Modbus holding register can store only 16-bit data types.
 
 Registers could be combined together to form any of these 32-bit data types:
 * A 32-bit unsigned integer (a number between 0 and 4,294,967,295)
