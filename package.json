@@ -1,6 +1,6 @@
 {
   "name": "modbus-rtu",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "scripts": {
     "test": "cross-env NODE_ENV=test tape tests/**/*.spec.js | tap-spec"
   },

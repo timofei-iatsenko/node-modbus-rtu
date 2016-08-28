@@ -1,9 +1,7 @@
-/**
- * Created by 1 on 18.08.2015.
- */
 module.exports = {
     crc: ModbusCrcError,
     abort: ModbusAborted,
+    retryLimit: ModbusRetryLimitExceed,
 };
 
 function ModbusCrcError() {
@@ -13,7 +11,7 @@ function ModbusCrcError() {
 }
 
 ModbusCrcError.prototype = Object.create(Error.prototype);
-ModbusCrcError.prototype.constructor = ModbusCrcError
+ModbusCrcError.prototype.constructor = ModbusCrcError;
 
 
 function ModbusAborted() {
@@ -23,4 +21,13 @@ function ModbusAborted() {
 }
 
 ModbusAborted.prototype = Object.create(Error.prototype);
-ModbusAborted.prototype.constructor = ModbusAborted
+ModbusAborted.prototype.constructor = ModbusAborted;
+
+function ModbusRetryLimitExceed(add) {
+    this.message = "Retry limit exceed " + add;
+    this.name = "ModbusRetryLimitExceed";
+    Error.captureStackTrace(this, ModbusRetryLimitExceed);
+}
+
+ModbusRetryLimitExceed.prototype = Object.create(Error.prototype);
+ModbusRetryLimitExceed.prototype.constructor = ModbusRetryLimitExceed;

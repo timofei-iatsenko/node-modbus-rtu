@@ -52,3 +52,44 @@ test('Should create valid request packet', (t) => {
 
     t.end();
 });
+
+test('Write single register should retry if error, and throw Error if limit exceed', (t) => {
+    const master = new Master(serialPort);
+    const RETRY_LIMIT = 2;
+    let i = 0;
+    master.request = function() {
+        i++;
+
+        return new Promise((resolve, reject) => {
+            reject();
+        })
+    };
+
+    master.writeSingleRegister(1, 0, 3, RETRY_LIMIT).catch((err) => {
+        t.equals(i, RETRY_LIMIT, 'Actual count of retries is correct');
+        t.equals(err.name, 'ModbusRetryLimitExceed', 'Throwed Error has correct type');
+    });
+
+    t.plan(2);
+});
+
+test('Write single register should resolve promise if success', (t) => {
+    const master = new Master(serialPort);
+    const RETRY_LIMIT = 2;
+    let i = 0;
+
+    master.request = function() {
+        i++;
+
+        return new Promise((resolve, reject) => {
+            i === 1 ? reject() : resolve(); //resolve after second retry
+        })
+    };
+
+    master.writeSingleRegister(1, 0, 3, RETRY_LIMIT).then(() => {
+        t.ok(true, 'Success handler is called');
+        t.equals(i, 2, 'Actual count of retries is correct');
+    });
+
+    t.plan(2);
+});

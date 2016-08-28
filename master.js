@@ -59,25 +59,26 @@ Master.prototype.writeSingleRegister = function (slave, register, value, retryCo
     retryCount = retryCount ? retryCount : constants.DEFAULT_RETRY_COUNT;
 
     var performRequest = function (retry) {
-        return new Promise(function (resolve) {
+        return new Promise(function (resolve, reject) {
             var funcName = 'writeSingleRegister: ';
             var funcId  = ' Slave '+slave+'; ' +
                 'Register: '+register+'; Value: '+value+';  Retry ' + (retryCount + 1 - retry) + ' of ' + retryCount;
 
             if (retry <= 0) {
-                throw new Error('Retry limit exceed (retry count  '+retryCount+') ' + funcId);
+                throw new errors.retryLimit(funcId);
             }
 
             self._options.debug &&
             console.log(funcName + 'perform request.' + funcId);
 
             self.request(packet)
+                .then(resolve)
                 .catch(function (err) {
                     self._options.debug && console.log(funcName + err  + funcId);
 
-                    return performRequest(--retry);
-                }).then(function (data) {
-                    resolve(data);
+                    return performRequest(--retry)
+                        .then(resolve)
+                        .catch(reject);
                 });
         });
     };
