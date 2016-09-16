@@ -1,4 +1,4 @@
-# node-modbus-rtu
+# node-modbus-rtu [![Build Status](https://travis-ci.org/thekip/node-modbus-rtu.svg?branch=master)](https://travis-ci.org/thekip/node-modbus-rtu)
 Pure NodeJS implementation of ModbusRTU protocol
 using [node-serialport](https://github.com/voodootikigod/node-serialport) and [Bluebird promises](https://github.com/petkaantonov/bluebird)
 
@@ -9,6 +9,12 @@ This library implement ONLY **ModbusRTU Master** and only most important feature
  * **16** Write Multiple Registers
 
 Coil functions (readCoils, writeCoils) is not implemented yet. But you can fork and add this.
+
+## Minimal requirements
+NodeJS >=0.11.13
+
+if you have older NodeJS version, you should install `modbus-rtu@0.0.2` version 
+or update NodeJS (the 6.0 version is out, how long you will be use legacy builds? :) )
 
 ## Installation
 The simplest way, install via npm, type to console:
@@ -274,6 +280,8 @@ new modbus.Master(serialPort, function (master) {
 ```
 
 ###Testing
+Tests written in ES6 syntax, so minimal NodeJS version to start it is 5.0.
+
 To run test, type to console:
 
 `npm test`
