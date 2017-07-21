@@ -4,6 +4,10 @@ const _ = require('lodash');
 module.exports = SerialHelper;
 
 class SerialHelper {
+    /**
+     * @param {SerialPort} serialPort
+     * @param options
+     */
     constructor(serialPort, options) {
         const self = this;
 
@@ -33,6 +37,13 @@ class SerialHelper {
         });
     }
 
+    /**
+     *
+     * @param {Buffer} buffer
+     * @param deferred
+     * @returns {Promise}
+     * @private
+     */
     _write(buffer, deferred) {
         this._options.debug && console.log('write', buffer);
         this.serialPort.write(buffer, function (error) {
@@ -68,6 +79,11 @@ class SerialHelper {
         }
     }
 
+    /**
+     *
+     * @param {Buffer} buffer
+     * @returns {Promise}
+     */
     write(buffer) {
         const deferred = {};
 
