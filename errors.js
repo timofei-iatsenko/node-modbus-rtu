@@ -2,6 +2,7 @@ module.exports = {
     crc: ModbusCrcError,
     abort: ModbusAborted,
     retryLimit: ModbusRetryLimitExceed,
+    ModbusResponseTimeout,
 };
 
 function ModbusCrcError() {
@@ -31,3 +32,12 @@ function ModbusRetryLimitExceed(add) {
 
 ModbusRetryLimitExceed.prototype = Object.create(Error.prototype);
 ModbusRetryLimitExceed.prototype.constructor = ModbusRetryLimitExceed;
+
+function ModbusResponseTimeout(time) {
+    this.message = `Response timeout ${time}ms exceed!`;
+    this.name = "ModbusResponseTimeout";
+    Error.captureStackTrace(this, ModbusResponseTimeout);
+}
+
+ModbusResponseTimeout.prototype = Object.create(Error.prototype);
+ModbusResponseTimeout.prototype.constructor = ModbusResponseTimeout;

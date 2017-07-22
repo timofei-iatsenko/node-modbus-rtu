@@ -18,7 +18,6 @@ function Master(serialPort, options) {
     this._options =  _.defaults(options || {}, {
       responseTimeout: constants.RESPONSE_TIMEOUT,
       queueTimeout: constants.QUEUE_TIMEOUT,
-      endPacketTimeout: constants.END_PACKET_TIMEOUT,
     });
 
     this.serial = new SerialHelper(serialPort, this._options);

@@ -1,6 +1,6 @@
-const Promise = require("bluebird");
 const _ = require('lodash');
 const Task = require('./task').Task;
+const ModbusResponseTimeout = require('./errors').ModbusResponseTimeout;
 
 module.exports = SerialHelper;
 
@@ -10,11 +10,15 @@ class SerialHelper {
      * @param options
      */
     constructor(serialPort, options) {
+        /**
+         * @type {Task[]}
+         */
         this.queue = [];
-        this._options = options;
+        /**
+         * @private
+         */
+        this.options = options;
         this.serialPort = serialPort;
-        this.buffers = [];
-        this.currentTask = null;
 
         this.bindToSerialPort();
     }
@@ -25,30 +29,10 @@ class SerialHelper {
      * @returns {Promise}
      */
     write(buffer) {
-        const deferred = {};
-
-        deferred.promise = new Promise(function (resolve, reject) {
-            deferred.resolve = resolve;
-            deferred.reject = reject;
-        });
-
-        const task = {
-            deferred: deferred,
-            buffer: buffer
-        };
-
+        const task = new Task(buffer);
         this.queue.push(task);
 
-        deferred.promise.abort = function () {
-            const _self = this;
-
-            if (deferred.promise.isPending()) {
-                deferred.reject();
-                _.pull(_self.queue, task);
-            }
-        };
-
-        return deferred.promise;
+        return task.promise;
     }
 
     /**
@@ -56,65 +40,52 @@ class SerialHelper {
      */
     bindToSerialPort() {
         this.serialPort.on("open", () => {
-            this.processQueue();
-        });
-
-        const onData = _.debounce(() => {
-            const buffer = Buffer.concat(self.buffers);
-            this._options.debug && console.log('resp', buffer);
-            this.currentTask.deferred.resolve(buffer);
-
-            this.buffers = [];
-        }, this._options.endPacketTimeout);
-
-        this.serialPort.on('data', (data) => {
-            if (this.currentTask) {
-                this.buffers.push(data);
-                onData(data);
-            }
+            this.startQueue();
         });
     }
 
     /**
      *
-     * @param {Buffer} buffer
-     * @param deferred
+     * @param {Task} task
      * @returns {Promise}
      * @private
      */
-    writeInternal(buffer, deferred) {
-        this._options.debug && console.log('write', buffer);
-        this.serialPort.write(buffer, function (error) {
-            if (error)
-                deferred.reject(error);
+    processTask(task) {
+        this.options.debug && console.log('write', task);
+        this.serialPort.write(task.payload, (error) => {
+            if (error) {
+                task.reject(error);
+            }
         });
 
-        return deferred.promise.timeout(this._options.responseTimeout, 'Response timeout exceed!');
+        // set execution timeout for task
+        setTimeout(() => {
+            task.reject(new ModbusResponseTimeout(this.options.responseTimeout))
+        }, this.options.responseTimeout);
+
+        this.serialPort.on('data', (data) => {
+            task.receiveData(data, (response) => {
+                this.options.debug && console.log('resp', response);
+                task.resolve(response);
+            });
+        });
+        
+        return task.promise;
     }
 
     /**
      * @private
      */
-    processQueue() {
-        const self = this;
-
-        function continueQueue() {
-            setTimeout(function () {
-                self.processQueue();
-            }, self._options.queueTimeout);  //pause between calls
-        }
+    startQueue() {
+        const continueQueue = () => {
+            setTimeout(() => {
+                this.startQueue();
+            }, this.options.queueTimeout);  //pause between calls
+        };
 
         if (this.queue.length) {
-            this.currentTask = this.queue[0];
-            this.writeInternal(this.currentTask.buffer, this.currentTask.deferred)
-                .catch(function (err) {
-                    self.currentTask.deferred.reject(err)
-                })
-                .finally(function () {
-                    //remove current task
-                    self.queue.shift();
-                    continueQueue();
-                }).done();
+            const task = this.queue.shift();
+            this.processTask(task).finally(continueQueue);
         } else {
             continueQueue();
         }
