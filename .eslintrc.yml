@@ -1,0 +1,276 @@
+---
+root: true
+
+parserOptions:
+  ecmaVersion: 6
+
+env:
+    node: true
+
+rules:
+    ### Possible Errors ###
+
+    comma-dangle:
+        - error
+        - always-multiline
+    no-cond-assign: error
+    no-console: off
+    no-constant-condition: error
+    no-control-regex: error
+    no-debugger: error
+    no-dupe-keys: error
+    no-empty: error
+    no-empty-character-class: error
+    no-ex-assign: error
+    no-extra-boolean-cast: error
+    no-extra-parens:
+        - error
+        - functions
+    no-extra-semi: error
+    no-func-assign: error
+    no-inner-declarations:
+        - error
+        - functions
+    no-invalid-regexp: error
+    no-irregular-whitespace: error
+    no-negated-in-lhs: error
+    no-obj-calls: error
+    no-regex-spaces: error
+    no-sparse-arrays: error
+    no-unreachable: error
+    use-isnan: error
+    valid-jsdoc: off
+    valid-typeof: error
+
+
+    ### Best Practices ###
+
+    block-scoped-var: error
+    complexity:
+        - 1
+        - 10
+    consistent-return: off
+    curly:
+        - error
+        - all
+    default-case: error
+    dot-notation: error
+    eqeqeq:
+        - error
+        - allow-null
+    guard-for-in: off
+    no-alert: error
+    no-caller: error
+    no-div-regex: off
+    no-else-return: error
+    no-eq-null: off
+    no-eval: error
+    no-extend-native: error
+    no-extra-bind: error
+    no-fallthrough: error
+    no-floating-decimal: error
+    no-implied-eval: error
+    no-iterator: error
+    no-labels: error
+    no-lone-blocks: error
+    no-loop-func: error
+    no-multi-spaces: error
+    no-multi-str: error
+    no-native-reassign: error
+    no-new: error
+    no-new-func: error
+    no-new-wrappers: error
+    no-octal: error
+    no-octal-escape: error
+    no-process-env: off
+    no-proto: error
+    no-redeclare: error
+    no-return-assign: error
+    no-script-url: off
+    no-self-compare: error
+    no-sequences: error
+    no-unused-expressions: error
+    no-void: off
+    no-warning-comments: off
+    no-with: error
+    radix: error
+    vars-on-top: off
+    wrap-iife:
+        - error
+        - any
+    yoda:
+        - error
+        - never
+
+
+    ### Variables ###
+
+    no-catch-shadow: off
+    no-delete-var: error
+    no-label-var: error
+    no-shadow: off
+    no-shadow-restricted-names: error
+    no-undef: error
+    no-undef-init: error
+    no-unused-vars:
+        - error
+        - { vars: all, args: after-used }
+    no-use-before-define: off
+    prefer-const: error
+    no-var: error
+
+
+    ### Node.js ###
+
+    no-path-concat: off
+    no-process-exit: off
+    no-restricted-modules: off
+    no-sync: off
+
+
+    ### Requires ###
+
+    global-require: off
+    no-new-require: error
+    no-mixed-requires: error
+
+    ### Stylistic Issues ###
+
+    block-spacing:
+        - error
+        - always
+    brace-style:
+        - error
+        - 1tbs
+        - allowSingleLine: true
+    camelcase: error
+    comma-spacing:
+        - error
+        - before: false
+          after: true
+    comma-style:
+        - error
+        - last
+    consistent-this:
+        - error
+        - vm
+    eol-last: off
+    func-names: off
+    func-style: off
+    key-spacing:
+        - error
+        - { beforeColon: false, afterColon: true }
+    max-len:
+        - 0
+        - 120
+    max-statements:
+        - 0
+        - 20
+    max-lines: off
+    new-cap:
+        - error
+        - { newIsCap: true, capIsNew: false }
+    new-parens: error
+    no-array-constructor: error
+    no-inline-comments: off
+    no-lonely-if: error
+    no-mixed-spaces-and-tabs: error
+    no-multiple-empty-lines:
+        - error
+        - max: 1
+    no-nested-ternary: error
+    no-new-object: error
+    no-spaced-func: error
+    no-ternary: off
+    no-trailing-spaces: error
+    no-underscore-dangle: off
+    one-var:
+        - error
+        - never
+    operator-assignment: off
+    padded-blocks:
+        - error
+        - never
+    quote-props:
+        - error
+        - as-needed
+    quotes:
+        - error
+        - single
+        - avoid-escape
+    semi:
+        - error
+        - always
+    sort-vars: off
+    space-before-blocks:
+        - error
+        - always
+    space-in-parens:
+        - error
+        - never
+    space-infix-ops: error
+    space-unary-ops:
+        - error
+        - { words: true, nonwords: false }
+    object-curly-spacing:
+        - error
+        - always
+    array-bracket-spacing:
+        - error
+        - never
+    computed-property-spacing:
+        - error
+        - never
+    wrap-regex: off
+    indent:
+        - error
+        - 4
+        - SwitchCase: 1
+    semi-spacing:
+        - error
+        - { before: false, after: true }
+    space-before-function-paren:
+        - error
+        - { anonymous: always, named: never }
+    spaced-comment:
+        - error
+        - always
+        - markers:
+            - global
+            - globals
+            - eslint
+            - eslint-disable
+            - "*package"
+            - "!"
+            - ","
+    keyword-spacing: error
+    accessor-pairs: error
+    arrow-spacing:
+        - error
+        - { before: true, after: true }
+    constructor-super: error
+    dot-location:
+        - error
+        - property
+    generator-star-spacing:
+        - error
+        - { before: true, after: true }
+    handle-callback-err:
+        - error
+        - "^(err|error)$"
+    no-class-assign: error
+    no-const-assign: error
+    no-dupe-args: error
+    no-dupe-class-members: error
+    no-duplicate-case: error
+    no-this-before-super: error
+    no-throw-literal: error
+    no-unexpected-multiline: error
+    no-unneeded-ternary:
+        - error
+        - defaultAssignment: false
+    no-useless-call: error
+    operator-linebreak:
+        - error
+        - after
+        - overrides: { "?": before,  ":": before }

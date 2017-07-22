@@ -35,6 +35,7 @@
   },
   "devDependencies": {
     "cross-env": "^2.0.0",
+    "eslint": "^4.3.0",
     "sinon": "^1.17.5",
     "tap-spec": "^4.1.1",
     "tape": "^4.6.0"
