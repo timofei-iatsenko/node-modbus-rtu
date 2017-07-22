@@ -1,6 +1,6 @@
-const _ = require('lodash');
 const Task = require('./task').Task;
 const ModbusResponseTimeout = require('./errors').ModbusResponseTimeout;
+const Logger = require('./logger').Logger;
 
 module.exports = SerialHelper;
 
@@ -19,6 +19,7 @@ class SerialHelper {
          */
         this.options = options;
         this.serialPort = serialPort;
+        this.logger = new Logger(options);
 
         this.bindToSerialPort();
     }
@@ -51,7 +52,7 @@ class SerialHelper {
      * @private
      */
     processTask(task) {
-        this.options.debug && console.log('write', task);
+        this.logger.info('write ' + task.payload.toString());
         this.serialPort.write(task.payload, (error) => {
             if (error) {
                 task.reject(error);
@@ -65,11 +66,11 @@ class SerialHelper {
 
         this.serialPort.on('data', (data) => {
             task.receiveData(data, (response) => {
-                this.options.debug && console.log('resp', response);
+                this.logger.info('resp ' + response.toString());
                 task.resolve(response);
             });
         });
-        
+
         return task.promise;
     }
 
