@@ -72,7 +72,7 @@ class SerialHelper {
 
         this.serialPort.on('data', onData);
 
-        task.promise.finally(() => {
+        task.promise.catch(() => {}).finally(() => {
             this.serialPort.removeListener('data', onData);
             done();
         });
