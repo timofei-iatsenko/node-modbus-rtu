@@ -46,10 +46,10 @@ class SerialHelper {
     /**
      *
      * @param {Task} task
-     * @returns {Promise}
+     * @param {function} done
      * @private
      */
-    processTask(task) {
+    processTask(task, done) {
         this.logger.info('write ' + task.payload.toString());
         this.serialPort.write(task.payload, (error) => {
             if (error) {
@@ -62,14 +62,19 @@ class SerialHelper {
             task.reject(new ModbusResponseTimeout(this.options.responseTimeout));
         }, this.options.responseTimeout);
 
-        this.serialPort.on('data', (data) => {
+        const onData = (data) => {
             task.receiveData(data, (response) => {
                 this.logger.info('resp ' + response.toString());
                 task.resolve(response);
             });
-        });
+        };
 
-        return task.promise;
+        this.serialPort.on('data', onData);
+
+        task.promise.finally(() => {
+            this.serialPort.removeListener('data', onData);
+            done();
+        });
     }
 
     /**
@@ -84,7 +89,7 @@ class SerialHelper {
 
         if (this.queue.length) {
             const task = this.queue.shift();
-            this.processTask(task).finally(continueQueue);
+            this.processTask(task, continueQueue);
         } else {
             continueQueue();
         }
