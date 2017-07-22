@@ -1,7 +1,7 @@
 module.exports = {
-    crc: ModbusCrcError,
+    ModbusCrcError,
     abort: ModbusAborted,
-    retryLimit: ModbusRetryLimitExceed,
+    ModbusRetryLimitExceed,
     ModbusResponseTimeout,
 };
 
