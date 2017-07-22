@@ -1,5 +1,5 @@
-var crc = require('crc');
-var BufferPut = require('bufferput');
+const crc = require('crc');
+const BufferPut = require('bufferput');
 
 const DATA_TYPES = {
     INT: 1,
@@ -14,20 +14,20 @@ module.exports = {
      * Slice header, bytes count and crc. Return buffer only with data
      * @param {Buffer} buffer
      */
-    getDataBuffer: function(buffer) {
+    getDataBuffer: function (buffer) {
         return buffer.slice(3, buffer.length - 2);
     },
 
     /**
      * Parse function 03 response packet (read holding registers)
      * @param {Buffer} buffer
-     * @param {number?} dataType
+     * @param {number} [dataType]
      * @returns {number[]}
      */
-    parseFc03Packet: function(buffer, dataType) {
-        var results = [];
+    parseFc03Packet: function (buffer, dataType) {
+        const results = [];
 
-        for (var i = 0; i < buffer.length; i += 2) {
+        for (let i = 0; i < buffer.length; i += 2) {
             results.push(readDataFromBuffer(buffer, i, dataType));
         }
 
@@ -39,7 +39,7 @@ module.exports = {
      * @param {Buffer} buf
      * @returns {Buffer}
      */
-    addCrc: function(buf) {
+    addCrc: function (buf) {
         return (new BufferPut())
             .put(buf)
             .word16le(crc.crc16modbus(buf))
@@ -51,17 +51,17 @@ module.exports = {
      * @param {Buffer} buffer
      * @returns boolean
      */
-    checkCrc: function(buffer) {
-        var pdu = buffer.slice(0, buffer.length - 2);
+    checkCrc: function (buffer) {
+        const pdu = buffer.slice(0, buffer.length - 2);
         return buffer.equals(this.addCrc(pdu));
-    }
+    },
 };
 
 /**
  *
  * @param {Buffer} buffer
  * @param {int} offset
- * @param {int} dataType
+ * @param {int} [dataType]
  * @returns {number | string}
  */
 function readDataFromBuffer(buffer, offset, dataType) {
