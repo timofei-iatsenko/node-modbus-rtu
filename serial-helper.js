@@ -1,4 +1,5 @@
 const Task = require('./task').Task;
+const Queue = require('./queue').Queue;
 const ModbusResponseTimeout = require('./errors').ModbusResponseTimeout;
 const Logger = require('./logger').Logger;
 
@@ -9,9 +10,9 @@ class SerialHelper {
      */
     constructor(serialPort, options) {
         /**
-         * @type {Task[]}
+         * @type {Queue<Task>}
          */
-        this.queue = [];
+        this.queue = new Queue(this.handleTask.bind(this), options.queueTimeout);
         /**
          * @private
          */
@@ -39,7 +40,7 @@ class SerialHelper {
      */
     bindToSerialPort() {
         this.serialPort.on('open', () => {
-            this.startQueue();
+            this.queue.start();
         });
     }
 
@@ -49,7 +50,7 @@ class SerialHelper {
      * @param {function} done
      * @private
      */
-    processTask(task, done) {
+    handleTask(task, done) {
         this.logger.info('write ' + task.payload.toString());
         this.serialPort.write(task.payload, (error) => {
             if (error) {
@@ -75,24 +76,6 @@ class SerialHelper {
             this.serialPort.removeListener('data', onData);
             done();
         });
-    }
-
-    /**
-     * @private
-     */
-    startQueue() {
-        const continueQueue = () => {
-            setTimeout(() => {
-                this.startQueue();
-            }, this.options.queueTimeout); // pause between calls
-        };
-
-        if (this.queue.length) {
-            const task = this.queue.shift();
-            this.processTask(task, continueQueue);
-        } else {
-            continueQueue();
-        }
     }
 }
 
