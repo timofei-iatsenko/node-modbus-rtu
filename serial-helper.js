@@ -40,7 +40,7 @@ class SerialHelper {
      * @private
      */
     bindToSerialPort() {
-        this.serialPort.on("open", () => {
+        this.serialPort.on('open', () => {
             this.startQueue();
         });
     }
@@ -61,7 +61,7 @@ class SerialHelper {
 
         // set execution timeout for task
         setTimeout(() => {
-            task.reject(new ModbusResponseTimeout(this.options.responseTimeout))
+            task.reject(new ModbusResponseTimeout(this.options.responseTimeout));
         }, this.options.responseTimeout);
 
         this.serialPort.on('data', (data) => {
@@ -81,7 +81,7 @@ class SerialHelper {
         const continueQueue = () => {
             setTimeout(() => {
                 this.startQueue();
-            }, this.options.queueTimeout);  //pause between calls
+            }, this.options.queueTimeout);  // pause between calls
         };
 
         if (this.queue.length) {

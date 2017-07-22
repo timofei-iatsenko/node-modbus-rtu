@@ -5,13 +5,13 @@
 //
 // Create class for this thermostat:
 
-var _ = require('lodash'); //npm i lodash
-var MicroEvent = require('microevent'); //npm i microevent
+const _ = require('lodash'); // npm i lodash
+const MicroEvent = require('microevent'); // npm i microevent
 
 module.exports = Thermostat;
 
-//Describe all slave registers
-var ENABLED_REGISTER = 0,
+// Describe all slave registers
+let ENABLED_REGISTER = 0,
     ROOM_TEMP_REGISTER = 3,
     TEMP_SETPOINT_REGISTER = 4;
 
@@ -33,50 +33,49 @@ function Thermostat(modbusMaster, modbusAddr) {
 MicroEvent.mixin(Thermostat);
 
 _.extend(Thermostat.prototype, {
-    update: function() {
-        var th = this;
-        //read data from thermostat
+    update: function () {
+        const th = this;
+        // read data from thermostat
         return this.modbusMaster.readHoldingRegisters(this.modbusAddr, 0, 6)
-            .then(function(data) {
+            .then(function (data) {
                 // when data received store it in the object properties
                 th._rawData = data;
 
-                th.enabled = data[ENABLED_REGISTER] != 90;
+                th.enabled = data[ENABLED_REGISTER] !== 90;
                 th.roomTemp = data[ROOM_TEMP_REGISTER] / 2;
                 th.tempSetpoint = data[TEMP_SETPOINT_REGISTER] / 2;
-
-            })
+            });
     },
 
-    toString: function() {
+    toString: function () {
         return 'Status: ' + (this.enabled ? 'on' : 'off') +
-            '; Room temp: ' + this.roomTemp + 'C; Set temp: ' + this.tempSetpoint + 'C;'
+            '; Room temp: ' + this.roomTemp + 'C; Set temp: ' + this.tempSetpoint + 'C;';
     },
 
-    watch: function() {
-        var self = this;
+    watch: function () {
+        const self = this;
 
         // make internal loop.
-        self.update().finally(function() {
+        self.update().finally(function () {
             if (!_.isEqual(self._oldData, self._rawData)) {
                 self.trigger('change', self);
-                self._oldData = self._rawData.slice(0); //clone data array
+                self._oldData = self._rawData.slice(0); // clone data array
             }
 
-            setTimeout(function() {
+            setTimeout(function () {
                 self.watch();
-            }, 300)
-        }).catch(function(err) {
+            }, 300);
+        }).catch(function (err) {
             console.log(err);
         });
-    }
+    },
 });
 
-//This simple class blackboxing all modbus communication inside and provide to us simple and clean api.
-new modbus.Master(serialPort, function(modbus) {
-    var t = new Thermostat(modbus, slave);
-    t.bind('change', function() {
-        //this code execute only when thermostat is changed
+// This simple class blackboxing all modbus communication inside and provide to us simple and clean api.
+new modbus.Master(serialPort, function (modbus) {
+    const t = new Thermostat(modbus, slave);
+    t.bind('change', function () {
+        // this code execute only when thermostat is changed
         console.log('Thermostat ' + i + '. ' + t.toString());
     });
 });

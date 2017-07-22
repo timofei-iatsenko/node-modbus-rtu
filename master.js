@@ -1,6 +1,8 @@
 const BufferPut = require('bufferput');
 const Promise = require('bluebird');
 const SerialHelper = require('./serial-helper');
+const Logger = require('./logger').Logger;
+
 const {
     FUNCTION_CODES,
     RESPONSE_TIMEOUT,
@@ -24,6 +26,7 @@ class ModbusMaster {
             queueTimeout: QUEUE_TIMEOUT,
         }, options || {});
 
+        this.logger = new Logger(this._options);
         this.serial = new SerialHelper(serialPort, this._options);
     }
 
@@ -71,12 +74,12 @@ class ModbusMaster {
                     throw new errors.ModbusRetryLimitExceed(funcId);
                 }
 
-                this.log(funcName + 'perform request.' + funcId);
+                this.logger.info(funcName + 'perform request.' + funcId);
 
                 this.request(packet)
                     .then(resolve)
                     .catch((err) => {
-                        this.log(funcName + err + funcId);
+                        this.logger.info(funcName + err + funcId);
 
                         return performRequest(--retry)
                             .then(resolve)
@@ -151,15 +154,5 @@ class ModbusMaster {
                 }
                 return response;
             });
-    }
-
-    /**
-     * @private
-     * @param string
-     */
-    log(string) {
-        if (this._options.debug) {
-            console.log(string);
-        }
     }
 }

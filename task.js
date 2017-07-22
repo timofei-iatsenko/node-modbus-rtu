@@ -33,7 +33,7 @@ class Task {
          * @private
          */
         this.cmd = payload[1];
-        
+
         /**
          * @private
          */
@@ -56,7 +56,7 @@ class Task {
     /**
      *
      * @param {Buffer} data
-     * @param {function} done
+     * @param {function(response: Buffer)} done
      * @returns {Buffer}
      */
     receiveData(data, done) {
@@ -65,7 +65,7 @@ class Task {
         const expectedLength = this.length;
         let bufferLength = this.buffer.length;
 
-        if (expectedLength < MIN_DATA_LENGTH || bufferLength < EXCEPTION_LENGTH) return;
+        if (expectedLength < MIN_DATA_LENGTH || bufferLength < EXCEPTION_LENGTH) { return; }
 
         if (bufferLength > MAX_BUFFER_LENGTH) {
             this.buffer = this.buffer.slice(-MAX_BUFFER_LENGTH);
@@ -78,7 +78,7 @@ class Task {
             const unitId = this.buffer[i];
             const functionCode = this.buffer[i + 1];
 
-            if (unitId !== this.id) continue;
+            if (unitId !== this.id) { continue; }
 
             if (functionCode === this.cmd && i + expectedLength <= bufferLength) {
                 return done(this.buffer.slice(i, i + EXCEPTION_LENGTH));
@@ -88,10 +88,9 @@ class Task {
             }
 
             // frame header matches, but still missing bytes pending
-            if (functionCode === (0x7f & this.cmd)) break;
+            if (functionCode === (0x7f & this.cmd)) { break; }
         }
     }
-
 
     /**
      * @private
@@ -105,7 +104,7 @@ class Task {
         switch (cmd) {
             case 1:
             case 2:
-                return 3 + parseInt((length - 1) / 8 + 1) + 2;
+                return 3 + parseInt((length - 1) / 8 + 1, 10) + 2;
             case 3:
             case 4:
                 return 3 + 2 * length + 2;
@@ -113,7 +112,7 @@ class Task {
             case 6:
             case 15:
             case 16:
-               return 6 + 2;
+                return 6 + 2;
             default:
                 return 0;
         }
@@ -126,7 +125,7 @@ class Task {
     createDeferred() {
         const deferred = {};
 
-        deferred.promise = new Promise(function (resolve, reject) {
+        deferred.promise = new Promise((resolve, reject) => {
             deferred.resolve = resolve;
             deferred.reject = reject;
         });
