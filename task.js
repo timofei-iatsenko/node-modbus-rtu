@@ -81,7 +81,7 @@ class Task {
             if (unitId !== this.id) { continue; }
 
             if (functionCode === this.cmd && i + expectedLength <= bufferLength) {
-                return done(this.buffer.slice(i, i + EXCEPTION_LENGTH));
+                return done(this.buffer.slice(i, i + expectedLength));
             }
             if (functionCode === (0x80 | this.cmd) && i + EXCEPTION_LENGTH <= bufferLength) {
                 return done(this.buffer.slice(i, i + EXCEPTION_LENGTH));
