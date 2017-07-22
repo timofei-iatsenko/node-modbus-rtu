@@ -1,3 +1,3 @@
 module.exports = {
-    Master: require('./master'),
-}
+    Master: require('./master').ModbusMaster,
+};
