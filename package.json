@@ -2,7 +2,7 @@
   "name": "modbus-rtu",
   "version": "0.1.1",
   "scripts": {
-    "test": "cross-env NODE_ENV=test tape tests/**/*.spec.js | tap-spec"
+    "test": "cross-env NODE_ENV=test tap-prettify tests/**/*.spec.js"
   },
   "description": "modbus-rtu implementation for node.js",
   "keywords": [
@@ -37,6 +37,7 @@
     "cross-env": "^2.0.0",
     "eslint": "^4.3.0",
     "sinon": "^1.17.5",
+    "tap-prettify": "0.0.2",
     "tap-spec": "^4.1.1",
     "tape": "^4.6.0"
   }
