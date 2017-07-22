@@ -81,15 +81,27 @@ class Task {
             if (unitId !== this.id) { continue; }
 
             if (functionCode === this.cmd && i + expectedLength <= bufferLength) {
-                return done(this.buffer.slice(i, i + expectedLength));
+                return done(this.getMessage(i, expectedLength));
             }
             if (functionCode === (0x80 | this.cmd) && i + EXCEPTION_LENGTH <= bufferLength) {
-                return done(this.buffer.slice(i, i + EXCEPTION_LENGTH));
+                return done(this.getMessage(i, EXCEPTION_LENGTH));
             }
 
             // frame header matches, but still missing bytes pending
             if (functionCode === (0x7f & this.cmd)) { break; }
         }
+    }
+
+    /**
+     * @private
+     * @param {number} start
+     * @param {number} length
+     * @returns {Buffer}
+     */
+    getMessage(start, length) {
+        const msg = this.buffer.slice(start, start + length);
+        this.buffer = this.buffer.slice(start + length);
+        return msg;
     }
 
     /**

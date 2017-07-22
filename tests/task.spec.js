@@ -22,163 +22,45 @@ test('Test deferred api', (t) => {
     t.plan(2);
 });
 
-test('should return a valid Modbus RTU message', (t) => {
-    const task = new Task(new Buffer('1103006B00037687', 'hex'));
+function testMessageHandling(t, payload, input, msg) {
+    const task = new Task(new Buffer(payload, 'hex'));
 
-    const responses = [
-        new Buffer('11', 'hex'),
-        new Buffer('03', 'hex'),
-        new Buffer('06', 'hex'),
-        new Buffer('ae', 'hex'),
-        new Buffer('41', 'hex'),
-        new Buffer('56', 'hex'),
-        new Buffer('52', 'hex'),
-        new Buffer('43', 'hex'),
-        new Buffer('40', 'hex'),
-        new Buffer('49', 'hex'),
-        new Buffer('ad', 'hex'),
-    ];
-
-    responses.forEach((chunk) => {
+    for (let i = 0; i < input.length; i += 2) {
         setTimeout(() => {
-            task.receiveData(chunk, (response) => {
-                t.equal(response.toString('hex'), '110306ae415652434049ad');
+            task.receiveData(new Buffer(input.slice(i, i + 2), 'hex'), (response) => {
+                t.equal(response.toString('hex'), msg);
                 t.end();
             });
         });
-    });
+    }
+}
+
+test('should return a valid Modbus RTU message', (t) => {
+    const msg = '110306ae415652434049ad';
+    testMessageHandling(t, '1103006B00037687', msg, msg);
 });
 
-//describe('data handler', function () {
-//    it('should return a valid Modbus RTU message', function (done) {
-//        port.once('data', function (data) {
-//            expect(data.toString('hex')).to.equal('110306ae415652434049ad');
-//            done();
-//        });
-//        port.open(function () {
-//            port.write(new Buffer('1103006B00037687', 'hex'));
-//            setTimeout(function () {
-//                port._client.receive(new Buffer('11', 'hex'));
-//                port._client.receive(new Buffer('03', 'hex'));
-//                port._client.receive(new Buffer('06', 'hex'));
-//                port._client.receive(new Buffer('ae', 'hex'));
-//                port._client.receive(new Buffer('41', 'hex'));
-//                port._client.receive(new Buffer('56', 'hex'));
-//                port._client.receive(new Buffer('52', 'hex'));
-//                port._client.receive(new Buffer('43', 'hex'));
-//                port._client.receive(new Buffer('40', 'hex'));
-//                port._client.receive(new Buffer('49', 'hex'));
-//                port._client.receive(new Buffer('ad', 'hex'));
-//            });
-//        });
-//    });
-//
-//    it('should return a valid Modbus RTU exception', function (done) {
-//        port.once('data', function (data) {
-//            expect(data.toString('hex')).to.equal('1183044136');
-//            done();
-//        });
-//        port.open(function () {
-//            port.write(new Buffer('1103006B00037687', 'hex'));
-//            setTimeout(function () {
-//                port._client.receive(new Buffer('11', 'hex'));
-//                port._client.receive(new Buffer('83', 'hex'));
-//                port._client.receive(new Buffer('04', 'hex'));
-//                port._client.receive(new Buffer('41', 'hex'));
-//                port._client.receive(new Buffer('36', 'hex'));
-//            });
-//        });
-//    });
-//
-//    it('Special data package, should return a valid Modbus RTU message', function (done) {
-//        port.once('data', function (data) {
-//            expect(data.toString('hex')).to.equal(LONG_MSG);
-//            done();
-//        });
-//        port.open(function () {
-//            port.write(new Buffer('010300000040443A', 'hex'));
-//            setTimeout(function () {
-//                for (let i = 0; i < LONG_MSG.length; i += 2) {
-//                    port._client.receive(new Buffer(LONG_MSG.slice(i, i + 2), 'hex'));
-//                }
-//            });
-//        });
-//    });
-//
-//    it('Illegal start chars, should synchronize to valid Modbus RTU message', function (done) {
-//        port.once('data', function (data) {
-//            expect(data.toString('hex')).to.equal('110306ae415652434049ad');
-//            done();
-//        });
-//        port.open(function () {
-//            port.write(new Buffer('1103006B00037687', 'hex'));
-//            setTimeout(function () {
-//                port._client.receive(new Buffer('20', 'hex')); // illegal char
-//                port._client.receive(new Buffer('54', 'hex')); // illegal char
-//                port._client.receive(new Buffer('54', 'hex')); // illegal char
-//                port._client.receive(new Buffer('ff', 'hex')); // illegal char
-//                port._client.receive(new Buffer('11', 'hex'));
-//                port._client.receive(new Buffer('03', 'hex'));
-//                port._client.receive(new Buffer('06', 'hex'));
-//                port._client.receive(new Buffer('ae', 'hex'));
-//                port._client.receive(new Buffer('41', 'hex'));
-//                port._client.receive(new Buffer('56', 'hex'));
-//                port._client.receive(new Buffer('52', 'hex'));
-//                port._client.receive(new Buffer('43', 'hex'));
-//                port._client.receive(new Buffer('40', 'hex'));
-//                port._client.receive(new Buffer('49', 'hex'));
-//                port._client.receive(new Buffer('ad', 'hex'));
-//            });
-//        });
-//    });
-//
-//    it('Illegal end chars, should return a valid Modbus RTU message', function (done) {
-//        port.once('data', function (data) {
-//            expect(data.toString('hex')).to.equal('110306ae415652434049ad');
-//            done();
-//        });
-//        port.open(function () {
-//            port.write(new Buffer('1103006B00037687', 'hex'));
-//            setTimeout(function () {
-//                port._client.receive(new Buffer('11', 'hex'));
-//                port._client.receive(new Buffer('03', 'hex'));
-//                port._client.receive(new Buffer('06', 'hex'));
-//                port._client.receive(new Buffer('ae', 'hex'));
-//                port._client.receive(new Buffer('41', 'hex'));
-//                port._client.receive(new Buffer('56', 'hex'));
-//                port._client.receive(new Buffer('52', 'hex'));
-//                port._client.receive(new Buffer('43', 'hex'));
-//                port._client.receive(new Buffer('40', 'hex'));
-//                port._client.receive(new Buffer('49', 'hex'));
-//                port._client.receive(new Buffer('ad', 'hex'));
-//                port._client.receive(new Buffer('20', 'hex')); // illegal char
-//                port._client.receive(new Buffer('54', 'hex')); // illegal char
-//                port._client.receive(new Buffer('54', 'hex')); // illegal char
-//                port._client.receive(new Buffer('ff', 'hex')); // illegal char
-//            });
-//        });
-//    });
-//
-//    it('should return a valid Modbus RTU message on illegal chars', function (done) {
-//        port.once('data', function (data) {
-//            expect(data.toString('hex')).to.equal('110306ae415652434049ad');
-//            done();
-//        });
-//        port.open(function () {
-//            port.write(new Buffer('1103006B00037687', 'hex'));
-//            setTimeout(function () {
-//                port._client.receive(new Buffer('11', 'hex'));
-//                port._client.receive(new Buffer('03', 'hex'));
-//                port._client.receive(new Buffer('06', 'hex'));
-//                port._client.receive(new Buffer('ae', 'hex'));
-//                port._client.receive(new Buffer('41', 'hex'));
-//                port._client.receive(new Buffer('56', 'hex'));
-//                port._client.receive(new Buffer('52', 'hex'));
-//                port._client.receive(new Buffer('43', 'hex'));
-//                port._client.receive(new Buffer('40', 'hex'));
-//                port._client.receive(new Buffer('49', 'hex'));
-//                port._client.receive(new Buffer('ad', 'hex'));
-//            });
-//        });
-//    });
-//});
+test('should return a valid Modbus RTU exception', (t) => {
+    const msg = '1183044136';
+    testMessageHandling(t, '1103006B00037687', msg, msg);
+});
+
+test('Special data package, should return a valid Modbus RTU message', (t) => {
+    const msg = '010380018301830183018301830183018301830183018301830183018301830' +
+        '1830183018301830183018301830183018301830183018301830183018301830183018301830183' +
+        '0183018301830183018301830183018301830183018301830183018301830183018301830183018' +
+        '3018301830183018301830183018301830183018346e0';
+    testMessageHandling(t, '010300000040443A', msg, msg);
+});
+
+test('Illegal start chars, should return a valid Modbus RTU message', (t) => {
+    const illegalChars = '205454ff';
+    const msg = '110306ae415652434049ad';
+    testMessageHandling(t, '1103006B00037687', illegalChars + msg, msg);
+});
+
+test('Illegal end chars, should return a valid Modbus RTU message', (t) => {
+    const illegalChars = '205454ff';
+    const msg = '110306ae415652434049ad';
+    testMessageHandling(t, '1103006B00037687', msg + illegalChars, msg);
+});
