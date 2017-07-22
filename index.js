@@ -1,3 +1,4 @@
 module.exports = {
-    Master: require('./master').ModbusMaster,
+    ModbusMaster: require('./master').ModbusMaster,
+    DATA_TYPES: require('./packet-utils').DATA_TYPES,
 };

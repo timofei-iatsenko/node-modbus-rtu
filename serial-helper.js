@@ -2,8 +2,6 @@ const Task = require('./task').Task;
 const ModbusResponseTimeout = require('./errors').ModbusResponseTimeout;
 const Logger = require('./logger').Logger;
 
-module.exports = SerialHelper;
-
 class SerialHelper {
     /**
      * @param {SerialPort} serialPort
@@ -81,7 +79,7 @@ class SerialHelper {
         const continueQueue = () => {
             setTimeout(() => {
                 this.startQueue();
-            }, this.options.queueTimeout);  // pause between calls
+            }, this.options.queueTimeout); // pause between calls
         };
 
         if (this.queue.length) {
@@ -93,3 +91,6 @@ class SerialHelper {
     }
 }
 
+module.exports = {
+    SerialHelper,
+};

@@ -4,6 +4,7 @@ const test = require('./tape');
 const Promise = require('bluebird');
 const _ = require('lodash');
 const ModbusMaster = require('../master').ModbusMaster;
+const DATA_TYPES = require('../packet-utils').DATA_TYPES;
 
 const serialPort = {
     on: _.noop,
@@ -28,7 +29,7 @@ test('Read holding registers', (t) => {
         t.equals(bigNumber, 2923517522, 'If callback passed, callback used for parsing buffer');
     });
 
-    master.readHoldingRegisters(1, 0, 3, ModbusMaster.DATA_TYPES.UINT).then((results) => {
+    master.readHoldingRegisters(1, 0, 3, DATA_TYPES.UINT).then((results) => {
         t.equals(results[0], 44609, 'If data type passed, it should be used in buffer parser');
     });
 

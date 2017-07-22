@@ -1,6 +1,6 @@
 const BufferPut = require('bufferput');
 const Promise = require('bluebird');
-const SerialHelper = require('./serial-helper');
+const SerialHelper = require('./serial-helper').SerialHelper;
 const Logger = require('./logger').Logger;
 
 const {
@@ -9,11 +9,9 @@ const {
     QUEUE_TIMEOUT,
     DEFAULT_RETRY_COUNT,
 } = require('./constants');
+
 const errors = require('./errors');
 const packetUtils = require('./packet-utils');
-
-module.exports.ModbusMaster = ModbusMaster;
-module.exports.DATA_TYPES = packetUtils.DATA_TYPES;
 
 class ModbusMaster {
     constructor(serialPort, options) {
@@ -156,3 +154,7 @@ class ModbusMaster {
             });
     }
 }
+
+module.exports = {
+    ModbusMaster,
+};
