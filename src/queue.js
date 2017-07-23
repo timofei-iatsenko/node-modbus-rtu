@@ -1,21 +1,28 @@
 class Queue {
     /**
      * @template T
-     * @param {function(task: T, done: function):void} onEachTask callback which will be called on each task
      * @param {number} timeout pause between queue tasks
      */
-    constructor(onEachTask, timeout) {
-        /** @private */
-        this.onEachTask = onEachTask;
+    constructor(timeout) {
+        /** @potected */
+        this.taskHandler = (task, done) => done();
 
         /** @private */
         this.queueTimeout = timeout;
 
         /**
-         * @private
+         * @protected
          * @type {T[]}
          */
         this.queue = [];
+    }
+
+    /**
+     * Set handler which will be called on each task
+     * @param {function(task: T, done: function):void} handler
+     */
+    setTaskHandler(handler) {
+        this.taskHandler = handler;
     }
 
     /**
@@ -44,7 +51,7 @@ class Queue {
 
         if (this.queue.length) {
             const task = this.queue.shift();
-            this.onEachTask(task, this.continueQueue.bind(this));
+            this.taskHandler(task, this.continueQueue.bind(this));
         } else {
             this.continueQueue();
         }

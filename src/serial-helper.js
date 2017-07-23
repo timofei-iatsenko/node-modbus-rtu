@@ -3,16 +3,32 @@ const Queue = require('./queue').Queue;
 const ModbusResponseTimeout = require('./errors').ModbusResponseTimeout;
 const Logger = require('./logger').Logger;
 
-class SerialHelper {
+class SerialHelperFactory {
     /**
      * @param {SerialPort} serialPort
      * @param options
+     * @returns {SerialHelper}
      */
-    constructor(serialPort, options) {
+    static create(serialPort, options) {
+        const queue = new Queue(options.queueTimeout);
+        return new SerialHelper(serialPort, queue, options);
+    }
+}
+
+class SerialHelper {
+    /**
+     * @param {SerialPort} serialPort
+     * @param {Queue<Task>} queue
+     * @param options
+     */
+    constructor(serialPort, queue, options) {
         /**
          * @type {Queue<Task>}
+         * @private
          */
-        this.queue = new Queue(this.handleTask.bind(this), options.queueTimeout);
+        this.queue = queue;
+        queue.setTaskHandler(this.handleTask.bind(this));
+
         /**
          * @private
          */
@@ -81,4 +97,5 @@ class SerialHelper {
 
 module.exports = {
     SerialHelper,
+    SerialHelperFactory,
 };

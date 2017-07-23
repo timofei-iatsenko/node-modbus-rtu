@@ -16,7 +16,8 @@ const queues = [];
  * @returns {Queue}
  */
 function createQueue(onEachTask, delay = 0) {
-    const queue = new Queue(onEachTask, delay);
+    const queue = new Queue(delay);
+    queue.setTaskHandler(onEachTask);
     queue.start();
     queues.push(queue);
     return queue;

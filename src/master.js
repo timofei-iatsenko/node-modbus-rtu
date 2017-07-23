@@ -1,6 +1,6 @@
 const BufferPut = require('bufferput');
 const Promise = require('bluebird');
-const SerialHelper = require('./serial-helper').SerialHelper;
+const SerialHelperFactory = require('./serial-helper').SerialHelperFactory;
 const Logger = require('./logger').Logger;
 
 const {
@@ -25,7 +25,7 @@ class ModbusMaster {
         }, options || {});
 
         this.logger = new Logger(this._options);
-        this.serial = new SerialHelper(serialPort, this._options);
+        this.serial = SerialHelperFactory.create(serialPort, this._options);
     }
 
     /**
