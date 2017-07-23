@@ -1,7 +1,7 @@
 const test = require('./tape');
 const sinon = require('sinon');
-const SerialHelper = require('../serial-helper').SerialHelper;
-const ModbusResponseTimeout = require('../errors').ModbusResponseTimeout;
+const SerialHelper = require('../src/serial-helper').SerialHelper;
+const ModbusResponseTimeout = require('../src/errors').ModbusResponseTimeout;
 const noop = require('lodash/noop');
 const EventEmitter = require('events').EventEmitter;
 

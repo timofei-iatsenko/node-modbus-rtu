@@ -3,8 +3,8 @@
 const test = require('./tape');
 const Promise = require('bluebird');
 const _ = require('lodash');
-const ModbusMaster = require('../master').ModbusMaster;
-const DATA_TYPES = require('../packet-utils').DATA_TYPES;
+const ModbusMaster = require('../src/master').ModbusMaster;
+const DATA_TYPES = require('../src/packet-utils').DATA_TYPES;
 
 const serialPort = {
     on: _.noop,

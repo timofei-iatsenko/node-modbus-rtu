@@ -1,7 +1,7 @@
 'use strict';
 
 const test = require('./tape');
-const Task = require('../task').Task;
+const Task = require('../src/task').Task;
 
 test('Test deferred api', (t) => {
     const samplePayload = new Buffer('01 03 06 AE41 5652 4340 49AD'.replace(/\s/g, ''), 'hex');

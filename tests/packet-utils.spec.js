@@ -2,7 +2,7 @@
 
 const test = require('./tape');
 const _ = require('lodash');
-const packetUtils = require('../packet-utils');
+const packetUtils = require('../src/packet-utils');
 
 test('Parse holding registers packet', (t) => {
     const buf = new Buffer('11 03 06 AE41 5652 4340 49AD'.replace(/\s/g, ''), 'hex');

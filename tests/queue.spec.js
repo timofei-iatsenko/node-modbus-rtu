@@ -2,7 +2,7 @@
 
 const sinon = require('sinon');
 const test = require('./tape');
-const Queue = require('../queue').Queue;
+const Queue = require('../src/queue').Queue;
 
 /**
  *
