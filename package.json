@@ -2,11 +2,11 @@
   "name": "modbus-rtu",
   "version": "0.1.1",
   "scripts": {
-    "build": "babel src --out-dir lib",
+    "build": "rimraf lib && babel src --out-dir lib",
     "lint": "eslint .",
-    "test": "cross-env NODE_ENV=test tap-prettify -r babel-register tests/**/*.spec.js",
+    "test": "cross-env NODE_ENV=test tape -r babel-register tests/**/*.spec.js | tap-spec",
     "ci": "npm run lint && npm run test",
-    "prepublish": "npm run build"
+    "prepublishOnly": "npm run build"
   },
   "description": "modbus-rtu implementation for node.js",
   "keywords": [
@@ -34,8 +34,10 @@
     "bluebird": "^3.3.0",
     "bufferput": "0.1.x",
     "crc": "3.3.0",
-    "lodash": "^4.3.0",
-    "serialport": "^4.0.7"
+    "lodash": "^4.3.0"
+  },
+  "peerDependencies": {
+    "serialport": ">=2"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
@@ -43,9 +45,9 @@
     "babel-register": "^6.24.1",
     "cross-env": "^2.0.0",
     "eslint": "^4.3.0",
+    "rimraf": "^2.6.1",
     "sinon": "^1.17.5",
-    "tap-prettify": "0.0.2",
     "tap-spec": "^4.1.1",
-    "tape": "^4.6.0"
+    "tape": "^4.7.0"
   }
 }
