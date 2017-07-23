@@ -7,4 +7,5 @@ if (process.env.NODE_ENV !== 'test') {
         .pipe(process.stdout);
 }
 
-module.exports = test;
+console.log(test);
+export default test;

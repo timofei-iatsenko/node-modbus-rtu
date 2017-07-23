@@ -1,9 +1,9 @@
-const Task = require('./task').Task;
-const Queue = require('./queue').Queue;
-const ModbusResponseTimeout = require('./errors').ModbusResponseTimeout;
-const Logger = require('./logger').Logger;
+import { Task } from './task';
+import { Queue } from './queue';
+import { ModbusResponseTimeout } from './errors';
+import { Logger } from './logger';
 
-class SerialHelperFactory {
+export class SerialHelperFactory {
     /**
      * @param {SerialPort} serialPort
      * @param options
@@ -15,7 +15,7 @@ class SerialHelperFactory {
     }
 }
 
-class SerialHelper {
+export class SerialHelper {
     /**
      * @param {SerialPort} serialPort
      * @param {Queue<Task>} queue
@@ -94,8 +94,3 @@ class SerialHelper {
         });
     }
 }
-
-module.exports = {
-    SerialHelper,
-    SerialHelperFactory,
-};

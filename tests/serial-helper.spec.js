@@ -1,10 +1,10 @@
-const test = require('./tape');
-const sinon = require('sinon');
-const SerialHelper = require('../src/serial-helper').SerialHelper;
-const Queue = require('../src/queue').Queue;
-const ModbusResponseTimeout = require('../src/errors').ModbusResponseTimeout;
-const noop = require('lodash/noop');
-const EventEmitter = require('events').EventEmitter;
+import test from './tape';
+import sinon from 'sinon';
+import { SerialHelper } from '../src/serial-helper';
+import { Queue } from '../src/queue';
+import { ModbusResponseTimeout } from '../src/errors';
+import noop from 'lodash/noop';
+import { EventEmitter } from 'events';
 
 const serialPort = Object.assign(new EventEmitter(), {
     write: noop,

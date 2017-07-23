@@ -1,61 +1,57 @@
-const crc = require('crc');
-const BufferPut = require('bufferput');
+import crc from 'crc';
+import BufferPut from 'bufferput';
 
-const DATA_TYPES = {
+export const DATA_TYPES = {
     INT: 1,
     UINT: 2,
     ASCII: 3,
 };
 
-module.exports = {
-    DATA_TYPES: DATA_TYPES,
+/**
+ * Slice header, bytes count and crc. Return buffer only with data
+ * @param {Buffer} buffer
+ */
+export function getDataBuffer(buffer) {
+    return buffer.slice(3, buffer.length - 2);
+}
 
-    /**
-     * Slice header, bytes count and crc. Return buffer only with data
-     * @param {Buffer} buffer
-     */
-    getDataBuffer: function (buffer) {
-        return buffer.slice(3, buffer.length - 2);
-    },
+/**
+ * Parse function 03 response packet (read holding registers)
+ * @param {Buffer} buffer
+ * @param {number} [dataType]
+ * @returns {number[]}
+ */
+export function parseFc03Packet(buffer, dataType) {
+    const results = [];
 
-    /**
-     * Parse function 03 response packet (read holding registers)
-     * @param {Buffer} buffer
-     * @param {number} [dataType]
-     * @returns {number[]}
-     */
-    parseFc03Packet: function (buffer, dataType) {
-        const results = [];
+    for (let i = 0; i < buffer.length; i += 2) {
+        results.push(readDataFromBuffer(buffer, i, dataType));
+    }
 
-        for (let i = 0; i < buffer.length; i += 2) {
-            results.push(readDataFromBuffer(buffer, i, dataType));
-        }
+    return results;
+}
 
-        return results;
-    },
+/**
+ * Returns new buffer signed with CRC
+ * @param {Buffer} buf
+ * @returns {Buffer}
+ */
+export function addCrc(buf) {
+    return (new BufferPut())
+        .put(buf)
+        .word16le(crc.crc16modbus(buf))
+        .buffer();
+}
 
-    /**
-     * Returns new buffer signed with CRC
-     * @param {Buffer} buf
-     * @returns {Buffer}
-     */
-    addCrc: function (buf) {
-        return (new BufferPut())
-            .put(buf)
-            .word16le(crc.crc16modbus(buf))
-            .buffer();
-    },
-
-    /**
-     *
-     * @param {Buffer} buffer
-     * @returns boolean
-     */
-    checkCrc: function (buffer) {
-        const pdu = buffer.slice(0, buffer.length - 2);
-        return buffer.equals(this.addCrc(pdu));
-    },
-};
+/**
+ *
+ * @param {Buffer} buffer
+ * @returns boolean
+ */
+export function checkCrc(buffer) {
+    const pdu = buffer.slice(0, buffer.length - 2);
+    return buffer.equals(this.addCrc(pdu));
+}
 
 /**
  *

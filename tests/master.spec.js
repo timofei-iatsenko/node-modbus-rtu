@@ -1,13 +1,12 @@
-'use strict';
+import test from './tape';
+import Promise from 'bluebird';
+import noop from 'lodash/noop';
 
-const test = require('./tape');
-const Promise = require('bluebird');
-const _ = require('lodash');
-const ModbusMaster = require('../src/master').ModbusMaster;
-const DATA_TYPES = require('../src/packet-utils').DATA_TYPES;
+import { ModbusMaster } from '../src/master';
+import { DATA_TYPES } from '../src/packet-utils';
 
 const serialPort = {
-    on: _.noop,
+    on: noop,
 };
 
 test('Read holding registers', (t) => {

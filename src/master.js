@@ -1,19 +1,19 @@
-const BufferPut = require('bufferput');
-const Promise = require('bluebird');
-const SerialHelperFactory = require('./serial-helper').SerialHelperFactory;
-const Logger = require('./logger').Logger;
+import BufferPut from 'bufferput';
+import Promise from 'bluebird';
+import { SerialHelperFactory } from './serial-helper';
+import { Logger } from './logger';
 
-const {
+import {
     FUNCTION_CODES,
     RESPONSE_TIMEOUT,
     QUEUE_TIMEOUT,
     DEFAULT_RETRY_COUNT,
-} = require('./constants');
+} from './constants';
 
-const errors = require('./errors');
-const packetUtils = require('./packet-utils');
+import { ModbusRetryLimitExceed, ModbusCrcError } from './errors';
+import * as packetUtils from './packet-utils';
 
-class ModbusMaster {
+export class ModbusMaster {
     constructor(serialPort, options) {
         serialPort.on('error', (err) => {
             console.error(err);
@@ -69,7 +69,7 @@ class ModbusMaster {
                     `Retry ${retryCount + 1 - retry} of ${retryCount}`;
 
                 if (retry <= 0) {
-                    throw new errors.ModbusRetryLimitExceed(funcId);
+                    throw new ModbusRetryLimitExceed(funcId);
                 }
 
                 this.logger.info(funcName + 'perform request.' + funcId);
@@ -148,13 +148,9 @@ class ModbusMaster {
         return this.serial.write(packetUtils.addCrc(buffer))
             .then((response) => {
                 if (!packetUtils.checkCrc(response)) {
-                    throw new errors.ModbusCrcError();
+                    throw new ModbusCrcError();
                 }
                 return response;
             });
     }
 }
-
-module.exports = {
-    ModbusMaster,
-};

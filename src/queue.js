@@ -1,4 +1,4 @@
-class Queue {
+export class Queue {
     /**
      * @template T
      * @param {number} timeout pause between queue tasks
@@ -65,7 +65,3 @@ class Queue {
         setTimeout(this.handle.bind(this), this.queueTimeout);
     }
 }
-
-module.exports = {
-    Queue,
-};

@@ -1,4 +1,4 @@
-class Logger {
+export class Logger {
     constructor(options) {
         this.options = options;
     }
@@ -9,7 +9,3 @@ class Logger {
         }
     }
 }
-
-module.exports = {
-    Logger,
-};

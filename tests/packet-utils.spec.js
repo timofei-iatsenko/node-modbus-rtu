@@ -1,8 +1,5 @@
-'use strict';
-
-const test = require('./tape');
-const _ = require('lodash');
-const packetUtils = require('../src/packet-utils');
+import test from './tape';
+import * as packetUtils from '../src/packet-utils';
 
 test('Parse holding registers packet', (t) => {
     const buf = new Buffer('11 03 06 AE41 5652 4340 49AD'.replace(/\s/g, ''), 'hex');
@@ -13,7 +10,7 @@ test('Parse holding registers packet', (t) => {
 
     const expectedResults = [-20927, 22098, 17216];
 
-    _.each(results, (result, i) => {
+    results.forEach((result, i) => {
         t.equal(results[i], expectedResults[i], `Result ${i} is equal to expected`);
     });
 

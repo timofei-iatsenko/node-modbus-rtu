@@ -1,10 +1,10 @@
-const Promise = require('bluebird');
+import Promise from 'bluebird';
 
 const EXCEPTION_LENGTH = 5;
 const MIN_DATA_LENGTH = 6;
 const MAX_BUFFER_LENGTH = 256;
 
-class Task {
+export class Task {
     /**
      * @param {Buffer} payload
      */
@@ -145,5 +145,3 @@ class Task {
         return deferred;
     }
 }
-
-module.exports.Task = Task;

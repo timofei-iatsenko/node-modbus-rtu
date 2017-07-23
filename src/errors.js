@@ -1,4 +1,4 @@
-class ModbusCrcError extends Error {
+export class ModbusCrcError extends Error {
     constructor() {
         super();
 
@@ -8,7 +8,7 @@ class ModbusCrcError extends Error {
     }
 }
 
-class ModbusAborted extends Error {
+export class ModbusAborted extends Error {
     constructor() {
         super();
         this.message = 'Aborted';
@@ -17,7 +17,7 @@ class ModbusAborted extends Error {
     }
 }
 
-class ModbusRetryLimitExceed extends Error {
+export class ModbusRetryLimitExceed extends Error {
     constructor(add) {
         super();
         this.message = 'Retry limit exceed ' + add;
@@ -26,7 +26,7 @@ class ModbusRetryLimitExceed extends Error {
     }
 }
 
-class ModbusResponseTimeout extends Error {
+export class ModbusResponseTimeout extends Error {
     constructor(time) {
         super();
         this.message = `Response timeout of ${time}ms exceed!`;
@@ -34,10 +34,3 @@ class ModbusResponseTimeout extends Error {
         Error.captureStackTrace(this, ModbusResponseTimeout);
     }
 }
-
-module.exports = {
-    ModbusCrcError,
-    ModbusAborted,
-    ModbusRetryLimitExceed,
-    ModbusResponseTimeout,
-};

@@ -1,8 +1,7 @@
-'use strict';
+import test from './tape';
+import sinon from 'sinon';
 
-const sinon = require('sinon');
-const test = require('./tape');
-const Queue = require('../src/queue').Queue;
+import { Queue } from '../src/queue';
 
 /**
  *
