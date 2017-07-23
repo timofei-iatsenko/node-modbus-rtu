@@ -28,7 +28,7 @@
     "url": "ttps://github.com/thekip/node-modbus-rtu/issues"
   },
   "engines": {
-    "node": ">=0.11.13"
+    "node": ">=5"
   },
   "dependencies": {
     "bluebird": "^3.3.0",
