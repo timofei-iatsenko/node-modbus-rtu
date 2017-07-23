@@ -2,7 +2,11 @@
   "name": "modbus-rtu",
   "version": "0.1.1",
   "scripts": {
-    "test": "cross-env NODE_ENV=test tap-prettify tests/**/*.spec.js"
+    "build": "babel src --out-dir lib",
+    "lint": "eslint .",
+    "test": "cross-env NODE_ENV=test tap-prettify -r babel-register tests/**/*.spec.js",
+    "ci": "npm run lint && npm run test",
+    "prepublish": "npm run build"
   },
   "description": "modbus-rtu implementation for node.js",
   "keywords": [
@@ -10,7 +14,7 @@
     "modbus",
     "modbus master"
   ],
-  "main": "index.js",
+  "main": "lib/index.js",
   "homepage": "https://github.com/thekip/node-modbus-rtu",
   "repository": {
     "type": "git",
@@ -34,6 +38,9 @@
     "serialport": "^4.0.7"
   },
   "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-preset-env": "^1.6.0",
+    "babel-register": "^6.24.1",
     "cross-env": "^2.0.0",
     "eslint": "^4.3.0",
     "sinon": "^1.17.5",
