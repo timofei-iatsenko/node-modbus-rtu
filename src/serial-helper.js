@@ -67,7 +67,7 @@ export class SerialHelper {
      * @private
      */
     handleTask(task, done) {
-        this.logger.info('write ' + task.payload.toString());
+        this.logger.info('write ' + task.payload.toString('HEX'));
         this.serialPort.write(task.payload, (error) => {
             if (error) {
                 task.reject(error);
@@ -81,7 +81,7 @@ export class SerialHelper {
 
         const onData = (data) => {
             task.receiveData(data, (response) => {
-                this.logger.info('resp ' + response.toString());
+                this.logger.info('resp ' + response.toString('HEX'));
                 task.resolve(response);
             });
         };
