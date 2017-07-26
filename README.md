@@ -113,9 +113,9 @@ they will write to port immediately. As result response from slaves will returns
 
 To deal with this problem all request instead of directly writing to port are put to the queue, and promise is returned.
 
-### API Documentation
+## API Documentation
 
-#### new modbus.Master(serialPort, [options])
+### new modbus.Master(serialPort, [options])
 
 Constructor of modbus class.
 
@@ -133,7 +133,7 @@ new ModbusMaster(new SerialPort("/dev/ttyUSB0", {
 }))
 ```
 
-#### master.readHoldingRegisters<T>(slave: int, start: int, length: int, [dataType = DATA_TYPES.INT]) -> Promise<T[]>
+### master.readHoldingRegisters<T>(slave: int, start: int, length: int, [dataType = DATA_TYPES.INT]) -> Promise<T[]>
 Modbus function read holding registers.
 
 Modbus holding register can store only 16-bit data types, 
@@ -195,7 +195,7 @@ master.readHoldingRegisters(1, 0, 2, (rawBuffer) => {
 });
 ```
 
-#### master.writeSingleRegister(slave: int, register: int, value: int, [retryCount=10]) -> Promise<void>
+### master.writeSingleRegister(slave: int, register: int, value: int, [retryCount=10]) -> Promise<void>
 Modbus function write single register.
 If fails will be repeated `retryCount` times.
 
@@ -212,7 +212,7 @@ const master = new ModbusMaster(serialPort);
 master.writeSingleRegister(1, 2, 150);
 ```
 
-#### master.writeMultipleRegisters(slave: int, start: int, array[int]) -> Promise<void>
+### master.writeMultipleRegisters(slave: int, start: int, array[int]) -> Promise<void>
 Modbus function write multiple registers.
 
 You can set starting register and data array. Register from `start` to `array.length` will be filled with array data
@@ -230,7 +230,7 @@ new ModbusMaster(serialPort, (master) => {
 })
 ```
 
-###Testing
+## Testing
 To run test, type to console:
 
 `npm test`
@@ -240,5 +240,5 @@ Or run manually entire test (by executing test file via node).
 Please feel free to create PR with you tests.
 
 
-### Roadmap
+## Roadmap
 1. Add rest modbus functions
