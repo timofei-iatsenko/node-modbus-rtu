@@ -115,7 +115,7 @@ To deal with this problem all request instead of directly writing to port are pu
 
 ## API Documentation
 
-### new modbus.Master(serialPort, [options])
+### new ModbusMaster(serialPort, [options])
 
 Constructor of modbus class.
 
@@ -133,7 +133,11 @@ new ModbusMaster(new SerialPort("/dev/ttyUSB0", {
 }))
 ```
 
-### master.readHoldingRegisters<T>(slave: int, start: int, length: int, [dataType = DATA_TYPES.INT]) -> Promise<T[]>
+### master.readHoldingRegisters
+```typescript
+ master.readHoldingRegisters<T>(slave: int, start: int, length: int, [dataType = DATA_TYPES.INT]): Promise<T[]>;
+```
+
 Modbus function read holding registers.
 
 Modbus holding register can store only 16-bit data types, 
