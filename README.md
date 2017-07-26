@@ -199,7 +199,11 @@ master.readHoldingRegisters(1, 0, 2, (rawBuffer) => {
 });
 ```
 
-### master.writeSingleRegister(slave: int, register: int, value: int, [retryCount=10]) -> Promise<void>
+### master.writeSingleRegister
+```ts
+writeSingleRegister(slave: int, register: int, value: int, [retryCount=10]) -> Promise<void>
+```
+
 Modbus function write single register.
 If fails will be repeated `retryCount` times.
 
@@ -216,7 +220,11 @@ const master = new ModbusMaster(serialPort);
 master.writeSingleRegister(1, 2, 150);
 ```
 
-### master.writeMultipleRegisters(slave: int, start: int, array[int]) -> Promise<void>
+### master.writeMultipleRegisters
+```ts
+writeMultipleRegisters(slave: int, start: int, array[int]) -> Promise<void>
+```
+
 Modbus function write multiple registers.
 
 You can set starting register and data array. Register from `start` to `array.length` will be filled with array data
