@@ -8,3 +8,4 @@ node_modules
 .travis.yml
 package-lock.json
 examples
+.idea

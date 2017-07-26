@@ -1,6 +1,6 @@
 {
   "name": "modbus-rtu",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "scripts": {
     "build": "rimraf lib && babel src --out-dir lib",
     "lint": "eslint .",
