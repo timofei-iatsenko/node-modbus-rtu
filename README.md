@@ -134,8 +134,8 @@ new ModbusMaster(new SerialPort("/dev/ttyUSB0", {
 ```
 
 ### master.readHoldingRegisters
-```typescript
- master.readHoldingRegisters<T>(slave: int, start: int, length: int, [dataType = DATA_TYPES.INT]): Promise<T[]>;
+```ts
+readHoldingRegisters<T>(slave: int, start: int, length: int, [dataType = DATA_TYPES.INT]): Promise<T[]>;
 ```
 
 Modbus function read holding registers.
